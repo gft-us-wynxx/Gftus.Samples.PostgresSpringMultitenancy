@@ -22,7 +22,7 @@ public class AuthorService {
 
     public Author findById(Long id) {
         Optional<Author> obj = repository.findById(id);
-        return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado"));
+        return obj.orElseThrow(() -> new ObjectNotFoundException("Object not found"));
     }
 
     public Author insert(Author obj) {
