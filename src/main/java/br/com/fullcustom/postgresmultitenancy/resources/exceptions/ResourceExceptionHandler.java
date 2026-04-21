@@ -13,7 +13,7 @@ public class ResourceExceptionHandler {
     @ExceptionHandler(ObjectNotFoundException::class)
     public fun objectNotFound(e: ObjectNotFoundException, request: HttpServletRequest): ResponseEntity<StandardError> {
         val status = HttpStatus.NOT_FOUND
-        val err = StandardError(System.currentTimeMillis(), status.value(), "NÃ£o encontrado", e.message, request.requestURI)
+        val err = StandardError(System.currentTimeMillis(), status.value(), "Not found", e.message, request.requestURI)
         return ResponseEntity.status(status).body(err)
     }
 }

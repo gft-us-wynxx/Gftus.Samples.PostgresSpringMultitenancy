@@ -34,8 +34,8 @@ public class Instantiation implements CommandLineRunner {
 		var bob = new Author(null, "Bob Grey", "bob@gmail.com");
 		userRepository.saveAll(Arrays.asList(maria, alex, bob));
 
-		var post1 = new Post(null, sdf.parse("21032018"), "Partiu viagem", "Vou viajar para SÃ£o Paulo. AbraÃ§os!", maria);
-		var post2 = new Post(null, sdf.parse("23032018"), "Bom dia", "Acordei feliz hoje!", maria);
+		var post1 = new Post(null, sdf.parse("21032018"), "Off on a trip", "Heading to São Paulo. Cheers!", maria);
+		var post2 = new Post(null, sdf.parse("23032018"), "Good morning", "Woke up happy today!", maria);
 		postReposiroty.saveAll(Arrays.asList(post1, post2));
 
 		maria.getPosts().addAll(Arrays.asList(post1, post2));

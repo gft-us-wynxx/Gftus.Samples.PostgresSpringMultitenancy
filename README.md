@@ -1,15 +1,15 @@
 # Postgres Multitenancy
 
-Projeto desenvolvido para criar um ambiente de testes utilizando o recurso de multi-tenant.
+Project developed to create a test environment using the multi-tenant feature.
 
-### Características
+### Features
 
-- É usado a estratégia de schema dedicado, ou seja, no Postgres existe somente um banco de dados, onde os tenants são os schemas, criados de forma separada dividindo totalmente um tenant de outro.
-- Toda requisição é interceptada e obtido o HEADER de nome X-TENANT, onde o usuário deve passar o nome do tenant (schema) que deseja. O identificador do tenant então é armazenado em uma ThreadLocal para que seja acessado pelo Database.
-- Os tenants são configurados no arquivo application.properties, onde serão criados/atualizados quando o sistema for reiniciado.
-- É utilizado o Flyway para criar a estrutuda de cada tenant de forma versionada, ou seja, ao criar um novo arquivo de versão do Flyway este será executado em cada um dos tenants contidos no arquivo application.properties.
+- Uses the dedicated schema strategy, meaning Postgres has a single database where tenants are schemas, created separately to fully isolate one tenant from another.
+- Every request is intercepted and the header named X-TENANT is read, where the user must pass the name of the desired tenant (schema). The tenant identifier is then stored in a ThreadLocal so it can be accessed by the database layer.
+- Tenants are configured in the application.properties file and will be created/updated whenever the application restarts.
+- Flyway is used to create each tenant's schema in a versioned manner — when a new Flyway version file is created, it will be executed for every tenant defined in application.properties.
 
-### Tecnologias utilizadas
+### Technologies
 
 - Java 11
 - Spring Boot 2.3.2

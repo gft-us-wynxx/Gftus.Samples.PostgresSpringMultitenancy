@@ -20,7 +20,7 @@ public class AuthorService {
 
 	public Author findById(Long id) {
 		var obj = repository.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto nÃ£o encontrado"));
+		return obj.orElseThrow(() -> new ObjectNotFoundException("Object not found"));
 	}
 
 	public Author insert(Author obj) {
