@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant SpringBoot as Spring Boot
+    participant ConfigFile as Configuration File
+    participant DSProps as DataSourceProperties
+    participant DSBuilder as DataSourceBuilder
+    participant DS as DataSource
+
+    SpringBoot->>ConfigFile: load properties with prefix tenants
+    Note right of ConfigFile: Reads application.yml or application.properties
+    ConfigFile-->>DSProps: property values loaded
+    Note right of DSProps: Map[String, Object] Tenant configuration properties
+
+    SpringBoot->>DSProps: invoke setDatasources method
+    Note right of DSProps: datasources: Map[String, Map[String, String]] tenant configurations
+
+    activate DSProps
+    DSProps->>DSProps: forEach iterate over each tenant configuration
+    Note right of DSProps: Process each tenant entry
+
+    loop For each tenant
+        DSProps->>DSProps: call convert method for each tenant datasource
+        Note right of DSProps: tenantName: String (tenant identifier) config: Map[String, String] (datasource configuration)
+
+        DSProps->>DSBuilder: create DataSource instance
+        activate DSBuilder
+        DSBuilder-->>DSProps: DataSource
+        Note right of DSBuilder: Configured datasource for tenant
+        deactivate DSBuilder
+
+        DSProps->>DSProps: store datasource in datasources map
+        Note right of DSProps: key: String (tenant name) value: DataSource (datasource instance)
+    end
+
+    deactivate DSProps

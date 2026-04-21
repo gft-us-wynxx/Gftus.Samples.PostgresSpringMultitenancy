@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant ExceptionHandler as Exception Handler
+    participant StandardError as StandardError
+    
+    ExceptionHandler->>StandardError: StandardError(exception, status, path)
+    Note over StandardError: StandardError instance created via parameterized constructor
+    
+    activate StandardError
+    StandardError->>StandardError: this.timestamp = System.currentTimeMillis()
+    Note over StandardError: Timestamp field populated
+    
+    StandardError->>StandardError: this.status = status
+    Note over StandardError: Status field populated
+    
+    StandardError->>StandardError: this.error = exception.getClass().getSimpleName()
+    Note over StandardError: Error type field populated
+    
+    StandardError->>StandardError: this.message = exception.getMessage()
+    Note over StandardError: Message field populated
+    
+    StandardError->>StandardError: this.path = path
+    Note over StandardError: Path field populated
+    
+    deactivate StandardError
+    
+    StandardError-->>ExceptionHandler: StandardError instance initialized

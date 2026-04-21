@@ -1,0 +1,200 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyservicesPostService.java",
+    "className": "PostService",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.services",
+    "responsibility": "Service layer component responsible for managing Post entity operations including retrieval by ID and fetching all posts from the database",
+    "interactions": [
+      "PostRepository for data access operations",
+      "Post domain entity for business object representation",
+      "ObjectNotFoundException for error handling"
+    ],
+    "businessKeywords": [
+      "Post management",
+      "Data retrieval",
+      "Entity lookup",
+      "Collection queries"
+    ],
+    "technicalCategory": "Service Layer",
+    "dataPatterns": [
+      "Repository pattern",
+      "Optional pattern for null safety",
+      "Exception-based error handling"
+    ],
+    "componentRelationships": [
+      {
+        "component": "PostRepository",
+        "type": "dependency",
+        "nature": "data access"
+      },
+      {
+        "component": "Post",
+        "type": "domain entity",
+        "nature": "business object"
+      }
+    ]
+  },
+  "dependencies": {
+    "consumers": [
+      "Controllers or API endpoints consuming PostService"
+    ],
+    "providers": [
+      "PostRepository",
+      "Spring Framework",
+      "ObjectNotFoundException"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot application",
+    "resourceRequirements": [
+      "PostgreSQL database connection",
+      "Spring container for bean management"
+    ],
+    "scalingNeeds": "Horizontal scaling through Spring Boot microservices architecture"
+  },
+  "security": {
+    "dataClassification": "Post data - potentially sensitive user-generated content",
+    "authenticationNeeds": "Spring Security integration recommended",
+    "authorizationPatterns": "Method-level authorization should be implemented for access control"
+  },
+  "performance": {
+    "criticalOperations": [
+      "findById - single record lookup",
+      "findAll - collection retrieval"
+    ],
+    "dataVolume": "Unbounded for findAll operation",
+    "concurrencyModel": "Thread-safe through Spring singleton bean management"
+  },
+  "classDetails": {
+    "name": "PostService",
+    "package": "br.com.fullcustom.postgresmultitenancy.services",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "repo",
+        "type": "PostRepository",
+        "visibility": "private",
+        "modifiers": [
+          "Autowired"
+        ],
+        "description": "Spring-injected repository for Post data access"
+      }
+    ],
+    "methods": [
+      {
+        "name": "findById",
+        "returnType": "Post",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long"
+          }
+        ],
+        "description": "Retrieves a Post by its ID, throws ObjectNotFoundException if not found",
+        "exceptionHandling": [
+          "ObjectNotFoundException"
+        ]
+      },
+      {
+        "name": "findAll",
+        "returnType": "List<Post>",
+        "visibility": "public",
+        "parameters": [],
+        "description": "Retrieves all Post entities from the database",
+        "exceptionHandling": []
+      }
+    ],
+    "relationships": [
+      {
+        "type": "dependency",
+        "target": "PostRepository",
+        "nature": "composition"
+      },
+      {
+        "type": "uses",
+        "target": "Post",
+        "nature": "domain entity"
+      }
+    ],
+    "interfaces": [],
+    "superclass": ""
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Find Post by ID",
+        "steps": [
+          "Client calls PostService.findById(id)",
+          "Service delegates to PostRepository.findById(id)",
+          "Repository returns Optional<Post>",
+          "Service calls orElseThrow() on Optional",
+          "If present, Post object is returned",
+          "If absent, ObjectNotFoundException is thrown"
+        ],
+        "exceptionPath": "ObjectNotFoundException propagates to caller"
+      },
+      {
+        "name": "Find All Posts",
+        "steps": [
+          "Client calls PostService.findAll()",
+          "Service delegates to PostRepository.findAll()",
+          "Repository returns List<Post>",
+          "Service returns List<Post> to caller"
+        ],
+        "exceptionPath": "Repository exceptions propagate to caller"
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "API Consumer",
+      "Client Application",
+      "End User"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Retrieve Single Post",
+        "preconditions": [
+          "Post with given ID exists in database",
+          "User has authorization to view Post"
+        ],
+        "steps": [
+          "Actor requests Post by ID",
+          "Service queries repository",
+          "Post is returned to actor"
+        ],
+        "postconditions": [
+          "Post data is available to actor"
+        ],
+        "alternativeFlows": [
+          {
+            "condition": "Post does not exist",
+            "action": "ObjectNotFoundException is thrown"
+          }
+        ]
+      },
+      {
+        "name": "Retrieve All Posts",
+        "preconditions": [
+          "User has authorization to view Posts"
+        ],
+        "steps": [
+          "Actor requests all Posts",
+          "Service queries repository for all records",
+          "List of Posts is returned to actor"
+        ],
+        "postconditions": [
+          "Complete collection of Posts is available to actor"
+        ],
+        "alternativeFlows": [
+          {
+            "condition": "No Posts exist",
+            "action": "Empty list is returned"
+          }
+        ]
+      }
+    ]
+  }
+}

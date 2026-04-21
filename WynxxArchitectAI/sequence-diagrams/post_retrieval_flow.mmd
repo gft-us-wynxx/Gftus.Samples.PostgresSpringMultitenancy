@@ -1,0 +1,64 @@
+sequenceDiagram
+    actor Client
+    participant PostResource
+    participant PostService
+    participant JPA
+    participant PostgreSQL
+    participant Post
+    participant Author
+    participant Jackson
+
+    Client->>PostResource: GET /posts/{id}
+    Note over Client,PostResource: Client requests Post by ID
+    
+    activate PostResource
+    PostResource->>PostService: findById(id)
+    activate PostService
+    
+    PostService->>JPA: find(Post.class, id)
+    Note over PostService,JPA: JPA queries PostgreSQL database
+    activate JPA
+    
+    JPA->>PostgreSQL: SELECT * FROM post WHERE id = ?
+    activate PostgreSQL
+    PostgreSQL-->>JPA: return post row with author_id
+    deactivate PostgreSQL
+    
+    JPA->>Post: instantiate Post
+    activate Post
+    deactivate Post
+    
+    JPA->>Author: load Author by author_id
+    Note over JPA,Author: Post entity is loaded with Author relationship
+    activate Author
+    deactivate Author
+    
+    JPA-->>PostService: return Post
+    deactivate JPA
+    
+    PostService-->>PostResource: return post
+    deactivate PostService
+    
+    PostResource->>Jackson: serialize(post)
+    Note over PostResource,Jackson: Jackson serializes Post to JSON with JsonManagedReference
+    activate Jackson
+    
+    Jackson->>Post: getId(), getTitle(), getContent()
+    activate Post
+    deactivate Post
+    
+    Jackson->>Post: getAuthor()
+    Note over Jackson,Post: Apply JsonManagedReference to serialize author
+    activate Post
+    deactivate Post
+    
+    Jackson->>Author: getId(), getName(), getEmail()
+    activate Author
+    deactivate Author
+    
+    Jackson-->>PostResource: JSON serialized Post
+    deactivate Jackson
+    
+    PostResource-->>Client: ResponseEntity.ok(jsonPost)
+    Note over PostResource,Client: JSON response is returned to client with HTTP 200
+    deactivate PostResource

@@ -1,0 +1,217 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyconfigdatasourceTenantRoutingDataSource.java",
+    "className": "TenantRoutingDataSource",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.config.datasource",
+    "responsibility": "Routes database connections to tenant-specific data sources based on current tenant context stored in thread-local storage",
+    "interactions": [
+      "Extends AbstractRoutingDataSource from Spring Framework",
+      "Consumes ThreadTenantStorage for tenant identification",
+      "Provides dynamic data source routing for multi-tenant architecture"
+    ],
+    "businessKeywords": [
+      "multi-tenancy",
+      "data-source-routing",
+      "tenant-isolation",
+      "database-routing"
+    ],
+    "technicalCategory": "Data Access Layer - Connection Routing",
+    "dataPatterns": [
+      "Thread-local tenant context",
+      "Dynamic data source lookup",
+      "Routing pattern"
+    ],
+    "componentRelationships": [
+      {
+        "component": "AbstractRoutingDataSource",
+        "type": "parent",
+        "role": "Spring Framework base class for dynamic routing"
+      },
+      {
+        "component": "ThreadTenantStorage",
+        "type": "dependency",
+        "role": "Provides current tenant identifier"
+      }
+    ],
+    "dependencies": {
+      "internal": [
+        "br.com.fullcustom.postgresmultitenancy.config.web.ThreadTenantStorage"
+      ],
+      "external": [
+        "org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource"
+      ]
+    },
+    "consumers": [
+      "Spring Data Source Configuration",
+      "Database Connection Pool"
+    ],
+    "providers": [
+      "ThreadTenantStorage",
+      "Spring Framework"
+    ],
+    "infrastructure": {
+      "deploymentType": "Spring Application Context",
+      "resourceRequirements": [
+        "Thread-local storage",
+        "Multiple database connections",
+        "Connection pooling"
+      ],
+      "scalingNeeds": [
+        "Horizontal scaling with tenant-specific databases",
+        "Connection pool management per tenant"
+      ]
+    },
+    "security": {
+      "dataClassification": "Tenant-specific data",
+      "authenticationNeeds": "Tenant context must be established before data source access",
+      "authorizationPatterns": [
+        "Tenant-based access control",
+        "Thread-local tenant validation"
+      ]
+    },
+    "performance": {
+      "criticalOperations": [
+        "determineCurrentLookupKey - called for every database operation"
+      ],
+      "dataVolume": "Variable based on tenant count and database size",
+      "concurrencyModel": "Thread-safe via thread-local storage"
+    }
+  },
+  "classDetails": {
+    "name": "TenantRoutingDataSource",
+    "package": "br.com.fullcustom.postgresmultitenancy.config.datasource",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [],
+    "methods": [
+      {
+        "name": "determineCurrentLookupKey",
+        "visibility": "protected",
+        "returnType": "Object",
+        "parameters": [],
+        "annotations": [
+          "Override"
+        ],
+        "description": "Determines the current lookup key for routing to appropriate data source based on tenant context"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "extends",
+        "target": "AbstractRoutingDataSource",
+        "package": "org.springframework.jdbc.datasource.lookup"
+      }
+    ],
+    "interfaces": [],
+    "superclass": {
+      "name": "AbstractRoutingDataSource",
+      "package": "org.springframework.jdbc.datasource.lookup"
+    }
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Tenant Data Source Routing",
+        "steps": [
+          {
+            "step": 1,
+            "actor": "Spring Framework",
+            "action": "Request database connection",
+            "target": "TenantRoutingDataSource"
+          },
+          {
+            "step": 2,
+            "actor": "TenantRoutingDataSource",
+            "action": "Call determineCurrentLookupKey",
+            "target": "determineCurrentLookupKey method"
+          },
+          {
+            "step": 3,
+            "actor": "determineCurrentLookupKey",
+            "action": "Log tenant lookup operation",
+            "target": "System.out"
+          },
+          {
+            "step": 4,
+            "actor": "determineCurrentLookupKey",
+            "action": "Retrieve tenant identifier",
+            "target": "ThreadTenantStorage"
+          },
+          {
+            "step": 5,
+            "actor": "determineCurrentLookupKey",
+            "action": "Return tenant identifier as lookup key",
+            "target": "AbstractRoutingDataSource"
+          },
+          {
+            "step": 6,
+            "actor": "AbstractRoutingDataSource",
+            "action": "Route to tenant-specific data source",
+            "target": "Data Source Pool"
+          }
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      {
+        "name": "Application",
+        "role": "Initiates database operations"
+      },
+      {
+        "name": "Tenant Context",
+        "role": "Provides tenant identification"
+      },
+      {
+        "name": "Database",
+        "role": "Executes queries on tenant-specific schema"
+      }
+    ],
+    "mainScenarios": [
+      {
+        "name": "Route Database Connection to Correct Tenant",
+        "preconditions": [
+          "Tenant context is established in ThreadTenantStorage",
+          "Multiple data sources are configured for different tenants",
+          "Spring application context is initialized"
+        ],
+        "steps": [
+          "Application requests database connection",
+          "Spring Framework invokes determineCurrentLookupKey",
+          "Method retrieves current tenant ID from ThreadTenantStorage",
+          "Tenant ID is returned as lookup key",
+          "AbstractRoutingDataSource uses key to select appropriate data source",
+          "Connection is routed to tenant-specific database"
+        ],
+        "postconditions": [
+          "Database operation executes against correct tenant schema",
+          "Data isolation is maintained between tenants"
+        ],
+        "businessRules": [
+          "Each tenant must have a unique identifier in thread-local storage",
+          "Tenant identifier must be set before any database operation",
+          "Data source routing must be transparent to application code"
+        ]
+      },
+      {
+        "name": "Handle Missing Tenant Context",
+        "preconditions": [
+          "Tenant context is not established"
+        ],
+        "steps": [
+          "Application requests database connection",
+          "determineCurrentLookupKey is invoked",
+          "ThreadTenantStorage.getTenantId returns null or empty value"
+        ],
+        "postconditions": [
+          "Connection routing fails or uses default data source",
+          "Error handling depends on Spring configuration"
+        ],
+        "businessRules": [
+          "Tenant context must always be available for multi-tenant operations"
+        ]
+      }
+    ]
+  }
+}

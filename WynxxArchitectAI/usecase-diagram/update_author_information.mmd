@@ -1,0 +1,304 @@
+graph TB
+    subgraph "Application Startup"
+        ucappstartup["Application Startup"]
+        ucinitdatabase["Initialize Database with Sample Data"]
+        ucconfiguredatasources["Configure MultiTenant Data Sources"]
+        ucexecutemigrations["Execute Database Migrations"]
+        ucinitdatasources["Initialize MultiTenant Datasources"]
+    end note
+
+    subgraph "MultiTenant Routing"
+        ucrouteconnection["Route Database Connection to Correct Tenant"]
+        ucretrievetenantdatasource["Retrieve Tenant Datasource"]
+    end note
+
+    subgraph "Request Processing"
+        ucextracttenantcontext["Successful Tenant Context Extraction"]
+        ucestablishtenantcontext["Establish Tenant Context"]
+        ucaccesstenantcontext["Access Tenant Context"]
+        uccleanuptenantcontext["Cleanup Tenant Context"]
+    end note
+
+    subgraph "Data Management - Authors"
+        ucmanageauthors["Manage Author Records"]
+        uccreateauthor["Create Author"]
+        ucretrieveauthor["Retrieve Author"]
+        ucupdateauthor["Update Author"]
+        ucdeleteauthor["Delete Author"]
+        uclistauthors["List Authors"]
+    end note
+
+    subgraph "Data Management - Posts"
+        ucmanageposts["Manage Post Records"]
+        uccreatepost["Create Blog Post"]
+        ucretrievepost["Retrieve Blog Post"]
+        ucupdatepost["Update Blog Post"]
+        ucdeletepost["Delete Blog Post"]
+    end note
+
+    subgraph "REST API - Posts"
+        ucretrievesinglepost["Retrieve Single Post via API"]
+        ucretrieveallposts["Retrieve All Posts for Tenant"]
+    end note
+
+    subgraph "REST API - Authors"
+        uclistallauthorsapi["List All Authors via API"]
+        ucretrieveauthordetailsapi["Retrieve Author Details via API"]
+        uccreateauthorapi["Create New Author via API"]
+        ucupdateauthorapi["Update Author via API"]
+        ucdeleteauthorapi["Delete Author via API"]
+        ucretrieveauthorpostsapi["Retrieve Author Posts via API"]
+    end note
+
+    subgraph "Exception Handling"
+        uchandlenotfound["Handle Not Found Exception"]
+    end note
+
+    %% Application Startup Relationships
+    ucappstartup -->|include| ucinitdatabase
+    ucappstartup -->|include| ucconfiguredatasources
+    ucappstartup -->|include| ucexecutemigrations
+    ucconfiguredatasources -->|include| ucinitdatasources
+
+    %% MultiTenant Routing Relationships
+    ucrouteconnection -->|include| ucretrievetenantdatasource
+
+    %% Request Processing Relationships
+    ucextracttenantcontext -->|include| ucestablishtenantcontext
+    ucextracttenantcontext -->|include| uccleanuptenantcontext
+
+    %% Author Management Relationships
+    ucmanageauthors -->|include| uccreateauthor
+    ucmanageauthors -->|include| ucretrieveauthor
+    ucmanageauthors -->|include| ucupdateauthor
+    ucmanageauthors -->|include| ucdeleteauthor
+    ucmanageauthors -->|include| uclistauthors
+    ucmanageauthors -->|include| ucrouteconnection
+
+    %% Post Management Relationships
+    ucmanageposts -->|include| uccreatepost
+    ucmanageposts -->|include| ucretrievepost
+    ucmanageposts -->|include| ucupdatepost
+    ucmanageposts -->|include| ucdeletepost
+    ucmanageposts -->|include| ucrouteconnection
+
+    %% REST API Post Relationships
+    ucretrievesinglepost -->|include| ucretrievepost
+    ucretrievesinglepost -->|include| ucextracttenantcontext
+    ucretrieveallposts -->|include| ucmanageposts
+    ucretrieveallposts -->|include| ucextracttenantcontext
+
+    %% REST API Author Relationships
+    uclistallauthorsapi -->|include| uclistauthors
+    uclistallauthorsapi -->|include| ucextracttenantcontext
+    ucretrieveauthordetailsapi -->|include| ucretrieveauthor
+    ucretrieveauthordetailsapi -->|include| ucextracttenantcontext
+    uccreateauthorapi -->|include| uccreateauthor
+    uccreateauthorapi -->|include| ucextracttenantcontext
+    ucupdateauthorapi -->|include| ucupdateauthor
+    ucupdateauthorapi -->|include| ucextracttenantcontext
+    ucdeleteauthorapi -->|include| ucdeleteauthor
+    ucdeleteauthorapi -->|include| ucextracttenantcontext
+    ucretrieveauthorpostsapi -->|include| ucretrieveauthor
+    ucretrieveauthorpostsapi -->|include| ucextracttenantcontext
+
+    %% Exception Handling Relationships
+    uccreateauthor -->|extend| uchandlenotfound
+    ucretrieveauthor -->|extend| uchandlenotfound
+    ucupdateauthor -->|extend| uchandlenotfound
+    ucdeleteauthor -->|extend| uchandlenotfound
+    ucretrievepost -->|extend| uchandlenotfound
+    ucupdatepost -->|extend| uchandlenotfound
+    ucdeletepost -->|extend| uchandlenotfound
+
+    %% Actor Associations
+    actorjvm["JVM"]
+    actorspringboot["Spring Boot Framework"]
+    actorspringweb["Spring Web Framework"]
+    actordatabase["PostgreSQL Database"]
+    actorflyway["Flyway Migration Tool"]
+    actorsysadmin["System Administrator"]
+    actorappuser["Application User"]
+    actorcontentuser["Content Management System User"]
+    actorblogauthor["Blog Author"]
+    actorblogreader["Blog Reader"]
+    actorapiclient["API Client"]
+    actorhttpclient["HTTP Client"]
+    actortenantcontext["Tenant Context"]
+
+    %% Actor to Use Case Connections
+    actorjvm -.->|executes| ucappstartup
+    actorspringboot -.->|initializes| ucappstartup
+    actorsysadmin -.->|triggers| ucappstartup
+    
+    actorspringboot -.->|manages| ucinitdatabase
+    actordatabase -.->|persists| ucinitdatabase
+    
+    actorspringboot -.->|configures| ucconfiguredatasources
+    actorsysadmin -.->|manages| ucconfiguredatasources
+    
+    actorspringboot -.->|executes| ucexecutemigrations
+    actorflyway -.->|migrates| ucexecutemigrations
+    actordatabase -.->|executes| ucexecutemigrations
+    
+    actorspringboot -.->|initializes| ucinitdatasources
+    actorsysadmin -.->|configures| ucinitdatasources
+    
+    actorspringboot -.->|routes| ucrouteconnection
+    actortenantcontext -.->|provides| ucrouteconnection
+    actordatabase -.->|executes| ucrouteconnection
+    
+    actorhttpclient -.->|sends| ucextracttenantcontext
+    actorspringweb -.->|processes| ucextracttenantcontext
+    
+    actorspringweb -.->|establishes| ucestablishtenantcontext
+    actortenantcontext -.->|stores| ucestablishtenantcontext
+    
+    actorspringboot -.->|accesses| ucaccesstenantcontext
+    actortenantcontext -.->|retrieves| ucaccesstenantcontext
+    
+    actorspringweb -.->|cleans| uccleanuptenantcontext
+    actortenantcontext -.->|clears| uccleanuptenantcontext
+    
+    actorcontentuser -.->|creates| uccreateauthor
+    actorspringboot -.->|validates| uccreateauthor
+    actordatabase -.->|persists| uccreateauthor
+    
+    actorapiclient -.->|retrieves| ucretrieveauthor
+    actorspringboot -.->|queries| ucretrieveauthor
+    actordatabase -.->|loads| ucretrieveauthor
+    
+    actorcontentuser -.->|updates| ucupdateauthor
+    actorspringboot -.->|modifies| ucupdateauthor
+    actordatabase -.->|persists| ucupdateauthor
+    
+    actorsysadmin -.->|deletes| ucdeleteauthor
+    actorspringboot -.->|cascades| ucdeleteauthor
+    actordatabase -.->|removes| ucdeleteauthor
+    
+    actorapiclient -.->|lists| uclistauthors
+    actorspringboot -.->|queries| uclistauthors
+    actordatabase -.->|retrieves| uclistauthors
+    
+    actorblogauthor -.->|creates| uccreatepost
+    actorspringboot -.->|associates| uccreatepost
+    actordatabase -.->|persists| uccreatepost
+    
+    actorblogreader -.->|retrieves| ucretrievepost
+    actorspringboot -.->|loads| ucretrievepost
+    actordatabase -.->|queries| ucretrievepost
+    
+    actorblogauthor -.->|updates| ucupdatepost
+    actorspringboot -.->|modifies| ucupdatepost
+    actordatabase -.->|persists| ucupdatepost
+    
+    actorblogauthor -.->|deletes| ucdeletepost
+    actorspringboot -.->|removes| ucdeletepost
+    actordatabase -.->|executes| ucdeletepost
+    
+    actorapiclient -.->|requests| ucretrievesinglepost
+    actorspringweb -.->|routes| ucretrievesinglepost
+    actorspringboot -.->|retrieves| ucretrievesinglepost
+    
+    actorapiclient -.->|requests| ucretrieveallposts
+    actorspringweb -.->|routes| ucretrieveallposts
+    actorspringboot -.->|retrieves| ucretrieveallposts
+    
+    actorapiclient -.->|requests| uclistallauthorsapi
+    actorspringweb -.->|routes| uclistallauthorsapi
+    actorspringboot -.->|retrieves| uclistallauthorsapi
+    
+    actorapiclient -.->|requests| ucretrieveauthordetailsapi
+    actorspringweb -.->|routes| ucretrieveauthordetailsapi
+    actorspringboot -.->|retrieves| ucretrieveauthordetailsapi
+    
+    actorapiclient -.->|requests| uccreateauthorapi
+    actorspringweb -.->|routes| uccreateauthorapi
+    actorspringboot -.->|creates| uccreateauthorapi
+    
+    actorapiclient -.->|requests| ucupdateauthorapi
+    actorspringweb -.->|routes| ucupdateauthorapi
+    actorspringboot -.->|updates| ucupdateauthorapi
+    
+    actorapiclient -.->|requests| ucdeleteauthorapi
+    actorspringweb -.->|routes| ucdeleteauthorapi
+    actorspringboot -.->|deletes| ucdeleteauthorapi
+    
+    actorapiclient -.->|requests| ucretrieveauthorpostsapi
+    actorspringweb -.->|routes| ucretrieveauthorpostsapi
+    actorspringboot -.->|retrieves| ucretrieveauthorpostsapi
+    
+    actorspringweb -.->|handles| uchandlenotfound
+    actorspringboot -.->|throws| uchandlenotfound
+
+    %% Notes
+    note1["Note: All database operations must be routed through TenantRoutingDataSource to ensure tenant isolation"]
+    note2["Note: Tenant context must be established before any database operation and cleaned up after request completion"]
+    note3["Note: Sample data initialization occurs on every application startup, clearing previous data"]
+    note4["Note: Database migrations must complete successfully before application serves requests"]
+    note5["Note: Email addresses must be unique within each tenant"]
+    note6["Note: Posts must be associated with a valid author and cannot exist independently"]
+    note7["Note: Cascade delete removes all posts when an author is deleted"]
+    note8["Note: All timestamps are stored and processed in GMT timezone"]
+    note9["Note: ThreadLocal storage must be cleaned up after request completion to prevent memory leaks"]
+    note10["Note: API responses must include appropriate HTTP status codes and error details"]
+    note11["Note: Each tenant must have a unique datasource configuration with separate database credentials"]
+    note12["Note: Connection pooling must be configured per tenant to optimize resource usage"]
+    note13["Note: X-tenant header is required for all API requests to identify the tenant"]
+    note14["Note: Only the post owner can update or delete their own posts"]
+    note15["Note: Post dates are automatically set to current date and cannot be manually specified"]
+
+    note1 -.->|constraint| ucrouteconnection
+    note2 -.->|constraint| ucextracttenantcontext
+    note3 -.->|requirement| ucinitdatabase
+    note4 -.->|constraint| ucexecutemigrations
+    note5 -.->|businessRule| uccreateauthor
+    note6 -.->|businessRule| uccreatepost
+    note7 -.->|businessRule| ucdeleteauthor
+    note8 -.->|requirement| ucinitdatabase
+    note9 -.->|constraint| uccleanuptenantcontext
+    note10 -.->|requirement| uchandlenotfound
+    note11 -.->|constraint| ucinitdatasources
+    note12 -.->|requirement| ucconfiguredatasources
+    note13 -.->|constraint| ucextracttenantcontext
+    note14 -.->|businessRule| ucupdatepost
+    note15 -.->|businessRule| uccreatepost
+
+    style ucappstartup fill:#e1f5ff
+    style ucinitdatabase fill:#e1f5ff
+    style ucconfiguredatasources fill:#e1f5ff
+    style ucexecutemigrations fill:#e1f5ff
+    style ucinitdatasources fill:#e1f5ff
+    
+    style ucrouteconnection fill:#f3e5f5
+    style ucretrievetenantdatasource fill:#f3e5f5
+    
+    style ucextracttenantcontext fill:#fce4ec
+    style ucestablishtenantcontext fill:#fce4ec
+    style ucaccesstenantcontext fill:#fce4ec
+    style uccleanuptenantcontext fill:#fce4ec
+    
+    style ucmanageauthors fill:#e8f5e9
+    style uccreateauthor fill:#e8f5e9
+    style ucretrieveauthor fill:#e8f5e9
+    style ucupdateauthor fill:#e8f5e9
+    style ucdeleteauthor fill:#e8f5e9
+    style uclistauthors fill:#e8f5e9
+    
+    style ucmanageposts fill:#fff3e0
+    style uccreatepost fill:#fff3e0
+    style ucretrievepost fill:#fff3e0
+    style ucupdatepost fill:#fff3e0
+    style ucdeletepost fill:#fff3e0
+    
+    style ucretrievesinglepost fill:#f1f8e9
+    style ucretrieveallposts fill:#f1f8e9
+    
+    style uclistallauthorsapi fill:#ede7f6
+    style ucretrieveauthordetailsapi fill:#ede7f6
+    style uccreateauthorapi fill:#ede7f6
+    style ucupdateauthorapi fill:#ede7f6
+    style ucdeleteauthorapi fill:#ede7f6
+    style ucretrieveauthorpostsapi fill:#ede7f6
+    
+    style uchandlenotfound fill:#ffebee

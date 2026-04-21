@@ -1,0 +1,67 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant JPA
+    participant Author
+    participant Post
+    participant PostgreSQL
+    participant ResourceExceptionHandler
+
+    Client->>AuthorResource: DELETE /authors/{id}
+    activate AuthorResource
+    AuthorResource->>AuthorService: delete(id)
+    activate AuthorService
+    AuthorService->>JPA: find(Author.class, id)
+    activate JPA
+    Note over JPA: Retrieve Author from database
+    JPA->>PostgreSQL: SELECT * FROM author WHERE id = ?
+    activate PostgreSQL
+    PostgreSQL-->>JPA: return author row
+    deactivate PostgreSQL
+    JPA->>Author: instantiate Author
+    activate Author
+    deactivate Author
+    deactivate JPA
+    
+    alt Author not found
+        JPA->>PostgreSQL: SELECT returns empty result
+        activate PostgreSQL
+        deactivate PostgreSQL
+        AuthorService->>ResourceExceptionHandler: throw ObjectNotFoundException
+        activate ResourceExceptionHandler
+        ResourceExceptionHandler-->>Client: ResponseEntity with 404 Not Found
+        deactivate ResourceExceptionHandler
+    else Author found
+        AuthorService->>JPA: remove(author)
+        activate JPA
+        Note over JPA: Delete Author entity
+        JPA->>Author: getPosts()
+        activate Author
+        deactivate Author
+        Note over JPA: Retrieve related posts for cascade deletion
+        
+        par Cascade Delete Posts
+            JPA->>Post: remove(post) for each post
+            activate Post
+            deactivate Post
+            Note over JPA: Cascade delete all related Post entities
+            JPA->>PostgreSQL: DELETE FROM post WHERE author_id = ?
+            activate PostgreSQL
+            Note over PostgreSQL: Remove post records from PostgreSQL
+            PostgreSQL-->>JPA: return delete count
+            deactivate PostgreSQL
+        end
+        
+        JPA->>PostgreSQL: DELETE FROM author WHERE id = ?
+        activate PostgreSQL
+        Note over PostgreSQL: Remove author record from PostgreSQL
+        PostgreSQL-->>JPA: return delete count
+        deactivate PostgreSQL
+        deactivate JPA
+        
+        AuthorService-->>AuthorResource: return void
+        deactivate AuthorService
+        AuthorResource-->>Client: ResponseEntity.noContent.build()
+        deactivate AuthorResource
+    end

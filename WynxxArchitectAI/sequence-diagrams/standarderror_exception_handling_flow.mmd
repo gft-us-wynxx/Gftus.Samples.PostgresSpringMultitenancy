@@ -1,0 +1,50 @@
+sequenceDiagram
+    participant Client as Client
+    participant REST as REST Controller
+    participant Handler as Exception Handler
+    participant StdErr as StandardError
+    participant Response as HTTP Response
+
+    Client->>REST: HTTP Request
+    Note over Client: Client initiates request to REST endpoint
+
+    REST->>REST: Exception occurs during processing
+    Note over REST: Exception thrown in controller method
+
+    REST->>Handler: Exception propagates
+    Note over Handler: Global exception handler catches exception
+
+    Handler->>StdErr: new StandardError(exception)
+    Note over StdErr: StandardError object instantiated with exception details
+
+    Handler->>StdErr: setTimestamp(System.currentTimeMillis())
+    Note over StdErr: Timestamp set to current time
+
+    alt Exception is ObjectNotFoundException
+        Handler->>StdErr: setStatus(404)
+        Note over StdErr: HTTP 404 Not Found status assigned
+    else Exception is UnsupportedEncodingException
+        Handler->>StdErr: setStatus(400)
+        Note over StdErr: HTTP 400 Bad Request status assigned
+    else Other Exception
+        Handler->>StdErr: setStatus(httpStatusCode)
+        Note over StdErr: HTTP status code assigned based on exception type
+    end
+
+    Handler->>StdErr: setError(exception.getClass().getSimpleName())
+    Note over StdErr: Error type extracted from exception
+
+    Handler->>StdErr: setMessage(exception.getMessage())
+    Note over StdErr: Error message extracted from exception
+
+    Handler->>StdErr: setPath(requestPath)
+    Note over StdErr: Request path captured from HTTP request
+
+    Handler->>StdErr: serialize to JSON
+    Note over StdErr: StandardError object serialized to JSON format
+
+    Handler->>Response: return ResponseEntity with JSON body
+    Note over Response: HTTP response with error details in JSON format
+
+    Response->>Client: HTTP Response with error status and JSON body
+    Note over Client: JSON error response returned to client

@@ -1,0 +1,52 @@
+C4Dynamic
+    title Dynamic diagram for PostgreSQL Multi-Tenancy Application
+
+    Container_Boundary(b1, "Application Layer") {
+        Container(c1, "Web Browser", "HTML/JavaScript", "User interface for accessing the application")
+        Container(c2, "REST API", "Spring Boot", "Handles HTTP requests and routes to appropriate services")
+    }
+
+    Container_Boundary(b2, "Service Layer") {
+        Component(c3, "AuthorService", "Spring Service", "Manages author business logic")
+        Component(c4, "PostService", "Spring Service", "Manages post business logic")
+        Component(c5, "HeaderTenantInterceptor", "Spring Interceptor", "Extracts tenant ID from request headers")
+    }
+
+    Container_Boundary(b3, "Data Access Layer") {
+        Component(c6, "AuthorRepository", "JPA Repository", "Accesses author data")
+        Component(c7, "PostRepository", "JPA Repository", "Accesses post data")
+        Component(c8, "ThreadTenantStorage", "Thread Local Storage", "Stores current tenant context")
+        Component(c9, "TenantRoutingDataSource", "Routing DataSource", "Routes queries to tenant-specific database")
+    }
+
+    Container_Boundary(b4, "Data Layer") {
+        ContainerDb(c10, "Tenant Database 1", "PostgreSQL", "Stores tenant-specific author and post data")
+        ContainerDb(c11, "Tenant Database 2", "PostgreSQL", "Stores tenant-specific author and post data")
+        ContainerDb(c12, "Tenant Database N", "PostgreSQL", "Stores tenant-specific author and post data")
+    }
+
+    Rel(c1, c2, "Sends HTTP request with tenant header", "HTTPS")
+    Rel(c2, c5, "Passes request through", "HTTP")
+    Rel(c5, c8, "Stores tenant ID in thread local", "Java")
+    Rel(c2, c3, "Calls findAll or CRUD operations", "Java")
+    Rel(c2, c4, "Calls findAll or CRUD operations", "Java")
+    Rel(c3, c6, "Queries author data", "JPA")
+    Rel(c4, c7, "Queries post data", "JPA")
+    Rel(c6, c8, "Retrieves tenant context", "Java")
+    Rel(c7, c8, "Retrieves tenant context", "Java")
+    Rel(c6, c9, "Routes query to correct database", "JDBC")
+    Rel(c7, c9, "Routes query to correct database", "JDBC")
+    Rel(c9, c10, "Executes query on tenant 1 database", "SQL")
+    Rel(c9, c11, "Executes query on tenant 2 database", "SQL")
+    Rel(c9, c12, "Executes query on tenant N database", "SQL")
+    Rel(c10, c9, "Returns tenant 1 data", "SQL")
+    Rel(c11, c9, "Returns tenant 2 data", "SQL")
+    Rel(c12, c9, "Returns tenant N data", "SQL")
+    Rel(c9, c6, "Returns query results", "JDBC")
+    Rel(c9, c7, "Returns query results", "JDBC")
+    Rel(c6, c3, "Returns author data", "Java")
+    Rel(c7, c4, "Returns post data", "Java")
+    Rel(c3, c2, "Returns response", "JSON")
+    Rel(c4, c2, "Returns response", "JSON")
+    Rel(c2, c1, "Sends HTTP response", "HTTPS")
+

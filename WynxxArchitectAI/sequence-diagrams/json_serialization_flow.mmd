@@ -1,0 +1,55 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant Jackson
+    participant Author
+    participant Post
+
+    Client->>AuthorResource: serializeauthor
+    activate AuthorResource
+    AuthorResource->>Jackson: serializeauthor
+    activate Jackson
+    Note over Jackson: Jackson encounters Author object
+    
+    Jackson->>Author: getId
+    activate Author
+    Note over Jackson: Serialize id field
+    Author-->>Jackson: return id (Long)
+    deactivate Author
+    
+    Jackson->>Author: getName
+    activate Author
+    Note over Jackson: Serialize name field
+    Author-->>Jackson: return name (String)
+    deactivate Author
+    
+    Jackson->>Author: getEmail
+    activate Author
+    Note over Jackson: Serialize email field
+    Author-->>Jackson: return email (String)
+    deactivate Author
+    
+    Jackson->>Author: getPosts
+    activate Author
+    Note over Jackson: Access posts collection
+    Author-->>Jackson: return posts list (List[Post])
+    deactivate Author
+    
+    loop for each post
+        Jackson->>Post: serializepost
+        activate Post
+        Note over Jackson: Serialize each post in collection
+        Jackson->>Post: getAuthor
+        Note over Jackson: Attempt to serialize author reference
+        deactivate Post
+    end
+    
+    Jackson->>Jackson: apply JsonBackReference
+    activate Jackson
+    Note over Jackson: Apply JsonBackReference to prevent circular reference in posts
+    deactivate Jackson
+    
+    Jackson-->>Client: return JSON string (String)
+    Note over Jackson: JSON representation with circular reference prevented
+    deactivate Jackson
+    deactivate AuthorResource

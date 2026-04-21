@@ -1,0 +1,119 @@
+stateDiagram-v2
+    [*] --> ApplicationStartup
+    
+    state ApplicationStartup {
+        [*] --> LoadConfiguration
+        LoadConfiguration --> InitializeDataSources
+        InitializeDataSources --> ExecuteMigrations
+        ExecuteMigrations --> InitializeSampleData
+        InitializeSampleData --> [*]
+    }
+    
+    state MultiTenantRouting {
+        [*] --> ConfigureDataSources
+        ConfigureDataSources --> InitializeDataSources
+        InitializeDataSources --> RetrieveTenantDataSource
+        RetrieveTenantDataSource --> RouteConnection
+        RouteConnection --> [*]
+    }
+    
+    state RequestProcessing {
+        [*] --> ExtractTenantContext
+        ExtractTenantContext --> EstablishTenantContext
+        EstablishTenantContext --> AccessTenantContext
+        AccessTenantContext --> CleanupTenantContext
+        CleanupTenantContext --> [*]
+    }
+    
+    state DataManagement {
+        [*] --> ManageAuthors
+        ManageAuthors --> CreateAuthor
+        ManageAuthors --> RetrieveAuthor
+        ManageAuthors --> UpdateAuthor
+        ManageAuthors --> DeleteAuthor
+        ManageAuthors --> ListAuthors
+        
+        [*] --> ManagePosts
+        ManagePosts --> CreatePost
+        ManagePosts --> RetrievePost
+        ManagePosts --> UpdatePost
+        ManagePosts --> DeletePost
+    }
+    
+    state RESTAPIEndpoints {
+        [*] --> AuthorEndpoints
+        AuthorEndpoints --> ListAllAuthorsAPI
+        AuthorEndpoints --> RetrieveAuthorDetailsAPI
+        AuthorEndpoints --> CreateAuthorAPI
+        AuthorEndpoints --> UpdateAuthorAPI
+        AuthorEndpoints --> DeleteAuthorAPI
+        AuthorEndpoints --> RetrieveAuthorPostsAPI
+        
+        [*] --> PostEndpoints
+        PostEndpoints --> RetrieveSinglePost
+        PostEndpoints --> RetrieveAllPosts
+    }
+    
+    state ErrorHandling {
+        [*] --> HandleNotFound
+        HandleNotFound --> ReturnErrorResponse
+        ReturnErrorResponse --> [*]
+    }
+    
+    ApplicationStartup --> MultiTenantRouting: startup_complete
+    ApplicationStartup --> DataManagement: initialization_done
+    
+    RequestProcessing --> RESTAPIEndpoints: context_established
+    RESTAPIEndpoints --> DataManagement: execute_operation
+    DataManagement --> MultiTenantRouting: route_query
+    MultiTenantRouting --> DataManagement: connection_ready
+    
+    DataManagement --> ErrorHandling: exception_thrown
+    RESTAPIEndpoints --> ErrorHandling: exception_thrown
+    ErrorHandling --> RequestProcessing: cleanup_required
+    
+    RequestProcessing --> [*]: request_complete
+    
+    note right of ApplicationStartup
+        System initialization phase
+        - Load configuration
+        - Initialize datasources
+        - Execute migrations
+        - Load sample data
+    end note
+    
+    note right of MultiTenantRouting
+        Tenant context management
+        - Configure datasources per tenant
+        - Route connections based on tenant ID
+        - Maintain data isolation
+    end note
+    
+    note right of RequestProcessing
+        HTTP request interception
+        - Extract tenant from X-tenant header
+        - Establish threadlocal context
+        - Cleanup after request
+    end note
+    
+    note right of DataManagement
+        Database operations
+        - CRUD for authors
+        - CRUD for posts
+        - Maintain relationships
+        - Enforce constraints
+    end note
+    
+    note right of RESTAPIEndpoints
+        REST API handlers
+        - Author endpoints
+        - Post endpoints
+        - Response serialization
+    end note
+    
+    note right of ErrorHandling
+        Exception handling
+        - Catch ObjectNotFoundException
+        - Return HTTP 404
+        - Format error responses
+    end note

@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant Client
+    participant AuthorService
+    participant SpringFramework as Spring Framework
+    participant ResourceExceptionHandler
+    participant StandardError
+
+    Client->>AuthorService: Request
+    activate AuthorService
+    AuthorService->>AuthorService: throw ObjectNotFoundException
+    Note right of AuthorService: Exception ObjectNotFoundException is thrown from service layer
+    deactivate AuthorService
+
+    AuthorService-->>SpringFramework: exception propagates
+    Note right of SpringFramework: Spring framework intercepts exception
+    activate SpringFramework
+
+    SpringFramework->>ResourceExceptionHandler: route to objectNotFound method
+    Note right of ResourceExceptionHandler: ControllerAdvice routes to objectNotFound method
+    activate ResourceExceptionHandler
+
+    ResourceExceptionHandler->>ResourceExceptionHandler: extract exception details and request URI
+    Note right of ResourceExceptionHandler: Method extracts exception details and request URI
+
+    ResourceExceptionHandler->>StandardError: new StandardError(timestamp, status, message, path)
+    Note right of StandardError: StandardError object is created with timestamp, status code, message, and request URI
+    activate StandardError
+    StandardError-->>ResourceExceptionHandler: StandardError instance
+    deactivate StandardError
+
+    ResourceExceptionHandler-->>Client: ResponseEntity.status(404).body(error)
+    Note right of Client: Response is serialized and sent to client
+    deactivate ResourceExceptionHandler
+    deactivate SpringFramework

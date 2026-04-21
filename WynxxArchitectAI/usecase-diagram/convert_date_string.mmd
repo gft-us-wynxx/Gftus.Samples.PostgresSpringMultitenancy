@@ -1,0 +1,163 @@
+stateDiagram-v2
+    [*] --> ApplicationStartup
+    
+    state ApplicationStartup {
+        [*] --> LoadConfiguration
+        LoadConfiguration --> InitializeDatasources
+        InitializeDatasources --> ConfigureDataSources
+        ConfigureDataSources --> ExecuteMigrations
+        ExecuteMigrations --> InitializeDatabase
+        InitializeDatabase --> [*]
+    }
+    
+    ApplicationStartup --> RequestProcessing
+    
+    state RequestProcessing {
+        [*] --> ReceiveHTTPRequest
+        ReceiveHTTPRequest --> ExtractTenantContext
+        ExtractTenantContext --> EstablishTenantContext
+        EstablishTenantContext --> ProcessRequest
+        ProcessRequest --> AccessTenantContext
+        AccessTenantContext --> CleanupTenantContext
+        CleanupTenantContext --> [*]
+    }
+    
+    RequestProcessing --> MultiTenantRouting
+    
+    state MultiTenantRouting {
+        [*] --> DetermineCurrentTenant
+        DetermineCurrentTenant --> RetrieveTenantDatasource
+        RetrieveTenantDatasource --> RouteConnection
+        RouteConnection --> [*]
+    }
+    
+    MultiTenantRouting --> DataManagement
+    
+    state DataManagement {
+        [*] --> ManageAuthors
+        [*] --> ManagePosts
+        
+        state ManageAuthors {
+            [*] --> AuthorOperation
+            AuthorOperation --> CreateAuthor
+            AuthorOperation --> RetrieveAuthor
+            AuthorOperation --> UpdateAuthor
+            AuthorOperation --> DeleteAuthor
+            AuthorOperation --> ListAuthors
+            CreateAuthor --> [*]
+            RetrieveAuthor --> [*]
+            UpdateAuthor --> [*]
+            DeleteAuthor --> [*]
+            ListAuthors --> [*]
+        }
+        
+        state ManagePosts {
+            [*] --> PostOperation
+            PostOperation --> CreatePost
+            PostOperation --> RetrievePost
+            PostOperation --> UpdatePost
+            PostOperation --> DeletePost
+            CreatePost --> [*]
+            RetrievePost --> [*]
+            UpdatePost --> [*]
+            DeletePost --> [*]
+        }
+        
+        ManageAuthors --> [*]
+        ManagePosts --> [*]
+    }
+    
+    DataManagement --> RESTAPI
+    
+    state RESTAPI {
+        [*] --> APIEndpoint
+        
+        state APIEndpoint {
+            [*] --> AuthorEndpoints
+            [*] --> PostEndpoints
+            
+            state AuthorEndpoints {
+                [*] --> ListAllAuthorsAPI
+                [*] --> RetrieveAuthorDetailsAPI
+                [*] --> CreateAuthorAPI
+                [*] --> UpdateAuthorAPI
+                [*] --> DeleteAuthorAPI
+                [*] --> RetrieveAuthorPostsAPI
+                ListAllAuthorsAPI --> [*]
+                RetrieveAuthorDetailsAPI --> [*]
+                CreateAuthorAPI --> [*]
+                UpdateAuthorAPI --> [*]
+                DeleteAuthorAPI --> [*]
+                RetrieveAuthorPostsAPI --> [*]
+            }
+            
+            state PostEndpoints {
+                [*] --> RetrieveSinglePostAPI
+                [*] --> RetrieveAllPostsAPI
+                RetrieveSinglePostAPI --> [*]
+                RetrieveAllPostsAPI --> [*]
+            }
+            
+            AuthorEndpoints --> [*]
+            PostEndpoints --> [*]
+        }
+        
+        APIEndpoint --> ExceptionHandling
+        
+        state ExceptionHandling {
+            [*] --> HandleNotFound
+            HandleNotFound --> [*]
+        }
+        
+        [*] --> APIEndpoint
+        APIEndpoint --> [*]
+    }
+    
+    RESTAPI --> ResponseGeneration
+    
+    state ResponseGeneration {
+        [*] --> SerializeResponse
+        SerializeResponse --> ReturnHTTPResponse
+        ReturnHTTPResponse --> [*]
+    }
+    
+    ResponseGeneration --> [*]
+    
+    note right of ApplicationStartup
+        System initialization phase:
+        - Load configuration
+        - Initialize datasources for all tenants
+        - Execute database migrations
+        - Populate sample data
+    end note
+    
+    note right of RequestProcessing
+        HTTP request interception:
+        - Extract X-tenant header
+        - Establish tenant context in ThreadLocal
+        - Process request with tenant isolation
+        - Cleanup ThreadLocal after completion
+    end note
+    
+    note right of MultiTenantRouting
+        Tenant context management:
+        - Determine current tenant from ThreadLocal
+        - Retrieve appropriate datasource
+        - Route database connection to tenant schema
+    end note
+    
+    note right of DataManagement
+        Database operations:
+        - CRUD operations on authors
+        - CRUD operations on posts
+        - Maintain tenant isolation
+        - Enforce business rules
+    end note
+    
+    note right of RESTAPI
+        REST API endpoints:
+        - Author management endpoints
+        - Post management endpoints
+        - Exception handling with HTTP 404
+        - Tenant-specific data isolation
+    end note

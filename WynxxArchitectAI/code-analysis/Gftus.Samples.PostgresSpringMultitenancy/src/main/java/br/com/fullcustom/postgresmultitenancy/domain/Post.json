@@ -1,0 +1,441 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancydomainPost.java",
+    "className": "Post",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.domain",
+    "responsibility": "Entity representing a blog post in a multi-tenant PostgreSQL system with author relationship management",
+    "interactions": [
+      "Persists to PostgreSQL database via JPA",
+      "Maintains many-to-one relationship with Author entity",
+      "Serializes to JSON via Jackson framework"
+    ],
+    "businessKeywords": [
+      "post",
+      "blog",
+      "content",
+      "author",
+      "multi-tenancy"
+    ],
+    "technicalCategory": "JPA Entity",
+    "dataPatterns": [
+      "Entity-Relationship Model",
+      "JSON Serialization",
+      "Managed Reference Pattern"
+    ],
+    "componentRelationships": [
+      {
+        "target": "Author",
+        "type": "ManyToOne",
+        "cardinality": "many-to-one",
+        "joinColumn": "idauthor"
+      }
+    ],
+    "dependencies": {
+      "consumers": [
+        "REST Controllers",
+        "Service Layer"
+      ],
+      "providers": [
+        "Author Entity",
+        "JPA Repository",
+        "Jackson ObjectMapper"
+      ]
+    },
+    "infrastructure": {
+      "deploymentType": "Spring Boot Application",
+      "resourceRequirements": [
+        "PostgreSQL Database",
+        "JPA/Hibernate ORM",
+        "Jackson JSON Processor"
+      ],
+      "scalingNeeds": "Multi-tenant database isolation"
+    },
+    "security": {
+      "dataClassification": "User-generated content",
+      "authenticationNeeds": "User authentication required for post creation",
+      "authorizationPatterns": "Tenant-based access control via multi-tenancy"
+    },
+    "performance": {
+      "criticalOperations": [
+        "Post retrieval by ID",
+        "Post listing by author",
+        "Post creation and updates"
+      ],
+      "dataVolume": "Variable based on content size",
+      "concurrencyModel": "Optimistic locking via serialVersionUID"
+    }
+  },
+  "classDetails": {
+    "name": "Post",
+    "package": "br.com.fullcustom.postgresmultitenancy.domain",
+    "type": "Class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "serialVersionUID",
+        "type": "long",
+        "visibility": "private static final",
+        "value": "1L",
+        "annotations": []
+      },
+      {
+        "name": "id",
+        "type": "Long",
+        "visibility": "private",
+        "annotations": [
+          "Id",
+          "GeneratedValue(strategy = GenerationType.IDENTITY)"
+        ]
+      },
+      {
+        "name": "date",
+        "type": "Date",
+        "visibility": "private",
+        "annotations": []
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "visibility": "private",
+        "annotations": []
+      },
+      {
+        "name": "body",
+        "type": "String",
+        "visibility": "private",
+        "annotations": []
+      },
+      {
+        "name": "author",
+        "type": "Author",
+        "visibility": "private",
+        "annotations": [
+          "JsonManagedReference",
+          "ManyToOne",
+          "JoinColumn(name = \"idauthor\")"
+        ]
+      }
+    ],
+    "methods": [
+      {
+        "name": "Post",
+        "type": "Constructor",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "void"
+      },
+      {
+        "name": "Post",
+        "type": "Constructor",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long"
+          },
+          {
+            "name": "date",
+            "type": "Date"
+          },
+          {
+            "name": "title",
+            "type": "String"
+          },
+          {
+            "name": "body",
+            "type": "String"
+          },
+          {
+            "name": "author",
+            "type": "Author"
+          }
+        ],
+        "returnType": "void"
+      },
+      {
+        "name": "getId",
+        "type": "Getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "Long"
+      },
+      {
+        "name": "setId",
+        "type": "Setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long"
+          }
+        ],
+        "returnType": "void"
+      },
+      {
+        "name": "getDate",
+        "type": "Getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "Date"
+      },
+      {
+        "name": "setDate",
+        "type": "Setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "date",
+            "type": "Date"
+          }
+        ],
+        "returnType": "void"
+      },
+      {
+        "name": "getTitle",
+        "type": "Getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "String"
+      },
+      {
+        "name": "setTitle",
+        "type": "Setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "title",
+            "type": "String"
+          }
+        ],
+        "returnType": "void"
+      },
+      {
+        "name": "getBody",
+        "type": "Getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "String"
+      },
+      {
+        "name": "setBody",
+        "type": "Setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "body",
+            "type": "String"
+          }
+        ],
+        "returnType": "void"
+      },
+      {
+        "name": "getAuthor",
+        "type": "Getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "Author"
+      },
+      {
+        "name": "setAuthor",
+        "type": "Setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "author",
+            "type": "Author"
+          }
+        ],
+        "returnType": "void"
+      },
+      {
+        "name": "hashCode",
+        "type": "Method",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "int",
+        "annotations": [
+          "Override"
+        ]
+      },
+      {
+        "name": "equals",
+        "type": "Method",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "obj",
+            "type": "Object"
+          }
+        ],
+        "returnType": "boolean",
+        "annotations": [
+          "Override"
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ManyToOne",
+        "targetClass": "Author",
+        "fieldName": "author",
+        "joinColumn": "idauthor"
+      }
+    ],
+    "interfaces": [
+      "Serializable"
+    ],
+    "superclass": "Object",
+    "annotations": [
+      "Entity"
+    ]
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Post Creation Flow",
+        "steps": [
+          "Client instantiates Post with constructor parameters",
+          "Post object fields are populated",
+          "Author reference is established via ManyToOne relationship",
+          "JPA persists Post entity to PostgreSQL database",
+          "Database generates ID via IDENTITY strategy",
+          "Post is returned to client"
+        ]
+      },
+      {
+        "name": "Post Retrieval Flow",
+        "steps": [
+          "Client requests Post by ID",
+          "JPA queries PostgreSQL database",
+          "Post entity is loaded with Author relationship",
+          "Jackson serializes Post to JSON with JsonManagedReference",
+          "JSON response is returned to client"
+        ]
+      },
+      {
+        "name": "Post Update Flow",
+        "steps": [
+          "Client retrieves existing Post",
+          "Client modifies Post properties via setters",
+          "JPA detects changes and updates database",
+          "Changes are persisted to PostgreSQL"
+        ]
+      },
+      {
+        "name": "Equality Check Flow",
+        "steps": [
+          "equals method compares object references",
+          "If same instance, returns true",
+          "If null comparison, returns false",
+          "If class types differ, returns false",
+          "Compares ID field values",
+          "Returns equality result"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "Blog Author",
+      "Blog Reader",
+      "System Administrator"
+    ],
+    "mainScenarios": [
+      {
+        "useCase": "Create Blog Post",
+        "actor": "Blog Author",
+        "preconditions": [
+          "Author is authenticated",
+          "Author has write permissions",
+          "Author entity exists in system"
+        ],
+        "mainFlow": [
+          "Author submits post content with title and body",
+          "System creates Post entity with current date",
+          "System associates Post with Author via ManyToOne relationship",
+          "System persists Post to PostgreSQL database",
+          "System returns Post with generated ID"
+        ],
+        "postconditions": [
+          "Post is stored in database",
+          "Post is associated with Author",
+          "Post is visible to readers"
+        ],
+        "businessRules": [
+          "Post must have non-empty title",
+          "Post must have non-empty body",
+          "Post must be associated with valid Author",
+          "Post date is automatically set to current date"
+        ]
+      },
+      {
+        "useCase": "Retrieve Blog Post",
+        "actor": "Blog Reader",
+        "preconditions": [
+          "Post exists in database",
+          "Post ID is known or searchable"
+        ],
+        "mainFlow": [
+          "Reader requests Post by ID",
+          "System queries PostgreSQL database",
+          "System loads Post with Author details",
+          "System serializes Post to JSON",
+          "System returns Post data to reader"
+        ],
+        "postconditions": [
+          "Post data is displayed to reader",
+          "Author information is included"
+        ],
+        "businessRules": [
+          "Post must exist in database",
+          "Author relationship must be valid",
+          "Multi-tenant isolation must be enforced"
+        ]
+      },
+      {
+        "useCase": "Update Blog Post",
+        "actor": "Blog Author",
+        "preconditions": [
+          "Post exists in database",
+          "Author owns the Post",
+          "Author is authenticated"
+        ],
+        "mainFlow": [
+          "Author retrieves existing Post",
+          "Author modifies title or body",
+          "System updates Post entity",
+          "System persists changes to database"
+        ],
+        "postconditions": [
+          "Post is updated in database",
+          "Changes are visible to readers"
+        ],
+        "businessRules": [
+          "Only Post owner can update",
+          "Post ID cannot be changed",
+          "Author association cannot be changed"
+        ]
+      },
+      {
+        "useCase": "Delete Blog Post",
+        "actor": "Blog Author",
+        "preconditions": [
+          "Post exists in database",
+          "Author owns the Post"
+        ],
+        "mainFlow": [
+          "Author requests Post deletion",
+          "System removes Post from database"
+        ],
+        "postconditions": [
+          "Post is removed from database",
+          "Post is no longer visible"
+        ],
+        "businessRules": [
+          "Only Post owner can delete",
+          "Deletion is permanent"
+        ]
+      }
+    ]
+  }
+}

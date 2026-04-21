@@ -1,0 +1,31 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant PostgreSQL
+    
+    Client->>AuthorResource: GET authors
+    Note right of Client: Client sends GET authors
+    
+    activate AuthorResource
+    AuthorResource->>AuthorResource: findAll
+    Note right of AuthorResource: AuthorResource.findAll invoked
+    
+    AuthorResource->>AuthorService: findAll
+    Note right of AuthorResource: AuthorService.findAll called
+    
+    activate AuthorService
+    AuthorService->>PostgreSQL: SELECT * FROM author
+    
+    activate PostgreSQL
+    PostgreSQL-->>AuthorService: return author rows
+    deactivate PostgreSQL
+    Note right of PostgreSQL: Collection of Author objects
+    
+    AuthorService-->>AuthorResource: return authors
+    deactivate AuthorService
+    Note right of AuthorService: ListAuthor returned from service
+    
+    AuthorResource-->>Client: ResponseEntity.ok(authors)
+    deactivate AuthorResource
+    Note right of AuthorResource: ResponseEntity with 200 OK returned to client

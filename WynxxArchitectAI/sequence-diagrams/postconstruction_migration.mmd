@@ -1,0 +1,39 @@
+sequenceDiagram
+    participant SC as Spring Container
+    participant DSC as DataSourceConfiguration
+    participant DSP as DataSourceProperties
+    participant FW as Flyway
+    participant DB as Database
+
+    SC->>DSC: invoke migrate method via PostConstruct
+    Note right of SC: Executed after bean initialization
+
+    activate DSC
+    DSC->>DSP: retrieve all configured data sources
+    activate DSP
+    DSP-->>DSC: Map[String, DataSourceConfig]
+    Note right of DSP: All tenant datasource configurations
+    deactivate DSP
+
+    Note right of DSC: Iterate over datasource map entries
+    loop for each data source
+        DSC->>DSC: call migrateDataSource for each source
+        Note right of DSC: tenantName: String (tenant identifier) config: DataSourceConfig (datasource configuration)
+
+        DSC->>FW: configure Flyway with data source
+        Note right of DSC: dataSource: DataSource (tenant datasource)
+        activate FW
+
+        FW->>DB: execute migration scripts
+        Note right of FW: Runs SQL migration files
+        activate DB
+
+        DB-->>FW: migration complete
+        Note right of DB: MigrateResult (Migration execution result)
+        deactivate DB
+
+        FW-->>DSC: return migration result
+        deactivate FW
+    end
+
+    deactivate DSC

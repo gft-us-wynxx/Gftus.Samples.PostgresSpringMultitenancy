@@ -1,0 +1,70 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant Author
+    participant JPA
+    participant PostgreSQL
+
+    Client->>AuthorResource: PUT /authors/{id} with Author body
+    activate AuthorResource
+    
+    AuthorResource->>Author: setId(id)
+    activate Author
+    deactivate Author
+    Note right of AuthorResource: Set ID from path variable
+    
+    AuthorResource->>AuthorService: update(author)
+    activate AuthorService
+    
+    AuthorService->>JPA: find(Author.class, id)
+    activate JPA
+    Note right of AuthorService: Retrieve Author from persistence context
+    
+    JPA->>PostgreSQL: SELECT * FROM author WHERE id = ?
+    activate PostgreSQL
+    
+    PostgreSQL-->>JPA: return author row
+    deactivate PostgreSQL
+    
+    JPA->>Author: instantiate Author
+    activate Author
+    deactivate Author
+    
+    AuthorService->>Author: setName(newName), setEmail(newEmail)
+    activate Author
+    deactivate Author
+    Note right of AuthorService: Modify name or email properties
+    
+    JPA->>Author: detect changes via dirty checking
+    activate Author
+    deactivate Author
+    Note right of JPA: JPA detects changes via dirty checking
+    
+    AuthorService->>JPA: flush()
+    Note right of AuthorService: Flush changes to PostgreSQL database
+    
+    JPA->>PostgreSQL: UPDATE author SET name = ?, email = ? WHERE id = ?
+    activate PostgreSQL
+    
+    PostgreSQL-->>JPA: return update count
+    deactivate PostgreSQL
+    deactivate JPA
+    
+    AuthorService-->>AuthorResource: return void
+    deactivate AuthorService
+    
+    AuthorResource-->>Client: ResponseEntity.noContent().build()
+    deactivate AuthorResource
+    Note right of AuthorResource: HTTP 204 No Content
+
+    alt Author not found
+        JPA->>PostgreSQL: SELECT returns empty result
+        activate PostgreSQL
+        deactivate PostgreSQL
+        
+        AuthorService->>AuthorService: throw ObjectNotFoundException
+        
+        AuthorService-->>Client: ResponseEntity with 404 Not Found
+        Note right of AuthorService: Author not found error
+    end

@@ -1,0 +1,36 @@
+sequenceDiagram
+    participant JVM as JVM
+    participant DemoApplication as DemoApplication
+    participant SpringApplication as SpringApplication
+    participant SpringBootContext as Spring Boot Context
+    participant Autoconfiguration as Autoconfiguration
+
+    Note over JVM,Autoconfiguration: Application Startup - JVM initialization and Spring Boot application context setup
+
+    JVM->>DemoApplication: invoke main method
+    Note right of JVM: Entry point of application
+    activate DemoApplication
+
+    DemoApplication->>SpringApplication: run(DemoApplication.class, args)
+    Note right of DemoApplication: Starts Spring Boot application
+    activate SpringApplication
+
+    SpringApplication->>SpringBootContext: initialize application context
+    Note right of SpringApplication: Creates ApplicationContext
+    activate SpringBootContext
+
+    SpringBootContext->>Autoconfiguration: load autoconfiguration beans
+    Note right of SpringBootContext: Loads Configuration classes
+    activate Autoconfiguration
+
+    Autoconfiguration-->>SpringBootContext: beans loaded
+    Note right of Autoconfiguration: All beans registered in context
+    deactivate Autoconfiguration
+
+    SpringBootContext-->>SpringApplication: application ready for requests
+    Note right of SpringBootContext: Startup complete
+    deactivate SpringBootContext
+
+    SpringApplication-->>DemoApplication: application ready for requests
+    deactivate SpringApplication
+    deactivate DemoApplication

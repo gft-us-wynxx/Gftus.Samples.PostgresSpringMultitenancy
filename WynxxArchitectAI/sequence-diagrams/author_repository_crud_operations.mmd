@@ -1,0 +1,97 @@
+sequenceDiagram
+    participant Service
+    participant AuthorRepository
+    participant JpaRepository
+    participant Hibernate
+    participant PostgreSQL
+
+    rect rgb(200, 220, 255)
+    Note over Service,PostgreSQL: Create Author
+    Service->>AuthorRepository: save(author)
+    activate AuthorRepository
+    AuthorRepository->>JpaRepository: save(author)
+    activate JpaRepository
+    JpaRepository->>Hibernate: persist(entity)
+    activate Hibernate
+    Hibernate->>PostgreSQL: INSERT INTO authors (name, email, tenantid) VALUES ...
+    activate PostgreSQL
+    PostgreSQL-->>Hibernate: Return generated ID (ResultSet)
+    deactivate PostgreSQL
+    Hibernate-->>JpaRepository: Return persisted entity (Author)
+    deactivate Hibernate
+    JpaRepository-->>AuthorRepository: Return author (Author)
+    deactivate JpaRepository
+    AuthorRepository-->>Service: Return author (Author)
+    deactivate AuthorRepository
+    end
+
+    rect rgb(200, 255, 220)
+    Note over Service,PostgreSQL: Retrieve Author
+    Service->>AuthorRepository: findById(id)
+    activate AuthorRepository
+    AuthorRepository->>JpaRepository: findById(id)
+    activate JpaRepository
+    JpaRepository->>Hibernate: find(id)
+    activate Hibernate
+    Hibernate->>PostgreSQL: SELECT * FROM authors WHERE id = ? AND tenantid = ?
+    activate PostgreSQL
+    alt Author not found
+        PostgreSQL-->>Hibernate: Return empty result set (ResultSet)
+        Hibernate-->>JpaRepository: Return Optional.empty (Optional[Author])
+    else Author found
+        PostgreSQL-->>Hibernate: Return result set (ResultSet)
+        Hibernate-->>JpaRepository: Return Optional[Author] (Optional[Author])
+    end
+    deactivate PostgreSQL
+    deactivate Hibernate
+    JpaRepository-->>AuthorRepository: Return Optional[Author] (Optional[Author])
+    deactivate JpaRepository
+    AuthorRepository-->>Service: Return Optional[Author] (Optional[Author])
+    deactivate AuthorRepository
+    end
+
+    rect rgb(255, 220, 200)
+    Note over Service,PostgreSQL: Update Author
+    Service->>AuthorRepository: save(author)
+    activate AuthorRepository
+    AuthorRepository->>JpaRepository: save(author)
+    activate JpaRepository
+    JpaRepository->>Hibernate: merge(entity)
+    activate Hibernate
+    Hibernate->>PostgreSQL: UPDATE authors SET name = ?, email = ? WHERE id = ? AND tenantid = ?
+    activate PostgreSQL
+    PostgreSQL-->>Hibernate: Return update result (int)
+    deactivate PostgreSQL
+    Hibernate-->>JpaRepository: Return updated entity (Author)
+    deactivate Hibernate
+    JpaRepository-->>AuthorRepository: Return author (Author)
+    deactivate JpaRepository
+    AuthorRepository-->>Service: Return author (Author)
+    deactivate AuthorRepository
+    end
+
+    rect rgb(255, 200, 220)
+    Note over Service,PostgreSQL: Delete Author
+    Service->>AuthorRepository: delete(author)
+    activate AuthorRepository
+    AuthorRepository->>JpaRepository: delete(author)
+    activate JpaRepository
+    JpaRepository->>Hibernate: remove(entity)
+    activate Hibernate
+    Hibernate->>PostgreSQL: DELETE FROM authors WHERE id = ? AND tenantid = ?
+    activate PostgreSQL
+    PostgreSQL-->>Hibernate: Return delete result (int)
+    deactivate PostgreSQL
+    Hibernate-->>JpaRepository: Operation complete
+    deactivate Hibernate
+    JpaRepository-->>AuthorRepository: Operation complete
+    deactivate JpaRepository
+    AuthorRepository-->>Service: Operation complete
+    deactivate AuthorRepository
+    end
+
+    rect rgb(220, 200, 255)
+    Note over PostgreSQL,Hibernate: Tenant Isolation Violation
+    PostgreSQL-->>Hibernate: Return 0 rows (tenantid mismatch)
+    Note right of PostgreSQL: Query returns no results due to tenant filter
+    end

@@ -1,0 +1,185 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyrepositoryPostRepository.java",
+    "className": "PostRepository",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.repository",
+    "responsibility": "Data access layer interface for Post entity persistence operations in a multi-tenant PostgreSQL environment",
+    "interactions": [
+      "Extends JpaRepository for CRUD operations",
+      "Interacts with Post domain entity",
+      "Managed by Spring Data JPA framework",
+      "Communicates with PostgreSQL database"
+    ],
+    "businessKeywords": [
+      "Post",
+      "Repository",
+      "Data Access",
+      "Multi-tenancy",
+      "Persistence"
+    ],
+    "technicalCategory": "Data Access Layer",
+    "dataPatterns": [
+      "Repository Pattern",
+      "Spring Data JPA",
+      "Generic Repository"
+    ],
+    "componentRelationships": [
+      "Post entity domain model",
+      "JpaRepository framework",
+      "Spring Data infrastructure"
+    ]
+  },
+  "dependencies": {
+    "consumers": [
+      "Service layer components",
+      "Controller layer components"
+    ],
+    "providers": [
+      "org.springframework.data.jpa.repository.JpaRepository",
+      "org.springframework.stereotype.Repository",
+      "br.com.fullcustom.postgresmultitenancy.domain.Post"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot Application",
+    "resourceRequirements": [
+      "PostgreSQL database",
+      "Spring Data JPA",
+      "Hibernate ORM"
+    ],
+    "scalingNeeds": "Multi-tenant database isolation"
+  },
+  "security": {
+    "dataClassification": "Application Data",
+    "authenticationNeeds": "Spring Security context",
+    "authorizationPatterns": "Role-based access control at service layer"
+  },
+  "performance": {
+    "criticalOperations": [
+      "Post retrieval",
+      "Post creation",
+      "Post update",
+      "Post deletion"
+    ],
+    "dataVolume": "Variable based on tenant data",
+    "concurrencyModel": "Multi-threaded with transaction management"
+  },
+  "classDetails": {
+    "name": "PostRepository",
+    "package": "br.com.fullcustom.postgresmultitenancy.repository",
+    "type": "interface",
+    "visibility": "public",
+    "attributes": [],
+    "methods": [],
+    "relationships": [
+      "extends JpaRepository<Post, Long>"
+    ],
+    "interfaces": [
+      "JpaRepository"
+    ],
+    "superclass": "JpaRepository<Post, Long>"
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Create Post",
+        "steps": [
+          "Service calls PostRepository.save()",
+          "JpaRepository delegates to Hibernate",
+          "Hibernate generates INSERT SQL",
+          "PostgreSQL executes INSERT",
+          "Post entity persisted with ID"
+        ]
+      },
+      {
+        "name": "Read Post",
+        "steps": [
+          "Service calls PostRepository.findById()",
+          "JpaRepository delegates to Hibernate",
+          "Hibernate generates SELECT SQL",
+          "PostgreSQL executes SELECT",
+          "Post entity returned to caller"
+        ]
+      },
+      {
+        "name": "Update Post",
+        "steps": [
+          "Service calls PostRepository.save()",
+          "JpaRepository delegates to Hibernate",
+          "Hibernate generates UPDATE SQL",
+          "PostgreSQL executes UPDATE",
+          "Post entity updated"
+        ]
+      },
+      {
+        "name": "Delete Post",
+        "steps": [
+          "Service calls PostRepository.delete()",
+          "JpaRepository delegates to Hibernate",
+          "Hibernate generates DELETE SQL",
+          "PostgreSQL executes DELETE",
+          "Post entity removed"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "End User",
+      "Service Layer",
+      "Spring Data JPA Framework"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Create New Post",
+        "preconditions": "User authenticated, valid Post data provided",
+        "steps": [
+          "User submits post creation request",
+          "Service validates post data",
+          "Service calls PostRepository.save()",
+          "Repository persists to database",
+          "Post ID returned to user"
+        ],
+        "postconditions": "Post stored in database with unique ID",
+        "businessRules": "Post must have required fields, multi-tenant isolation enforced"
+      },
+      {
+        "name": "Retrieve Post",
+        "preconditions": "Post ID exists, user has access rights",
+        "steps": [
+          "User requests post by ID",
+          "Service calls PostRepository.findById()",
+          "Repository queries database",
+          "Post data returned to user"
+        ],
+        "postconditions": "Post data displayed to user",
+        "businessRules": "Multi-tenant data isolation enforced"
+      },
+      {
+        "name": "Update Post",
+        "preconditions": "Post exists, user has edit permissions",
+        "steps": [
+          "User submits post update",
+          "Service validates changes",
+          "Service calls PostRepository.save()",
+          "Repository updates database",
+          "Confirmation returned to user"
+        ],
+        "postconditions": "Post updated in database",
+        "businessRules": "Audit trail maintained, multi-tenant isolation enforced"
+      },
+      {
+        "name": "Delete Post",
+        "preconditions": "Post exists, user has delete permissions",
+        "steps": [
+          "User requests post deletion",
+          "Service calls PostRepository.delete()",
+          "Repository removes from database",
+          "Confirmation returned to user"
+        ],
+        "postconditions": "Post removed from database",
+        "businessRules": "Soft delete or hard delete policy applied, multi-tenant isolation enforced"
+      }
+    ]
+  }
+}

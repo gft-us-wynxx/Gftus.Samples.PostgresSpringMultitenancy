@@ -1,0 +1,42 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant JPA
+    participant PostgreSQL
+    participant Author
+    participant Post
+    participant ResourceExceptionHandler
+
+    Client->>AuthorResource: GET /authors/{id}
+    AuthorResource->>AuthorService: findById(id)
+    AuthorService->>JPA: find(Author.class, id)
+    Note over JPA: Query Author by ID from database
+    JPA->>PostgreSQL: SELECT * FROM author WHERE id = ?
+
+    alt Author found
+        PostgreSQL-->>JPA: return author row
+        Note over JPA: ResultSet - Author record from database
+        JPA->>Author: instantiate and populate Author
+        Note over JPA: JPA loads entity into persistence context
+        JPA-->>AuthorService: return Author
+        AuthorService-->>AuthorResource: return author
+
+        opt if posts accessed
+            AuthorResource->>Author: getPosts()
+            Note over AuthorResource: Lazy load posts collection on access
+            Author->>JPA: initialize lazy collection
+            JPA->>PostgreSQL: SELECT * FROM post WHERE author_id = ?
+            PostgreSQL-->>JPA: return post rows
+            JPA->>Post: instantiate Post entities
+            JPA-->>Author: return posts
+        end
+
+        AuthorResource-->>Client: ResponseEntity.ok(author)
+        Note over AuthorResource: HTTP 200 with Author object
+    else Author not found
+        PostgreSQL-->>JPA: SELECT returns empty result
+        JPA-->>AuthorService: return null or Optional.empty
+        AuthorService->>ResourceExceptionHandler: throw ObjectNotFoundException
+        ResourceExceptionHandler-->>Client: ResponseEntity with 404 Not Found
+    end

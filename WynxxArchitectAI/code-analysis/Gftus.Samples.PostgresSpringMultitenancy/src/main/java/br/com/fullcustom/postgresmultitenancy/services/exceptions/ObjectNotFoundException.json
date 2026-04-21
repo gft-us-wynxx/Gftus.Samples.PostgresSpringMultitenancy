@@ -1,0 +1,142 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyservicesexceptionsObjectNotFoundException.java",
+    "className": "ObjectNotFoundException",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.services.exceptions",
+    "responsibility": "Custom exception class for handling object not found scenarios in the PostgreSQL multi-tenancy service layer",
+    "interactions": [
+      "Thrown by service layer components when requested objects cannot be located",
+      "Caught by exception handlers and REST controllers for error response generation"
+    ],
+    "businessKeywords": [
+      "exception handling",
+      "error management",
+      "object lookup",
+      "not found scenario"
+    ],
+    "technicalCategory": "Exception Handling",
+    "dataPatterns": [
+      "Error message propagation",
+      "Exception chaining"
+    ],
+    "componentRelationships": [
+      "Service layer components",
+      "REST controllers",
+      "Global exception handlers"
+    ]
+  },
+  "dependencies": {
+    "consumers": [
+      "Service layer classes",
+      "REST controllers",
+      "Exception handlers"
+    ],
+    "providers": [
+      "java.lang.RuntimeException"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot Application",
+    "resourceRequirements": [
+      "JVM runtime",
+      "PostgreSQL database"
+    ],
+    "scalingNeeds": "Stateless exception class, no scaling constraints"
+  },
+  "security": {
+    "dataClassification": "Non-sensitive",
+    "authenticationNeeds": false,
+    "authorizationPatterns": []
+  },
+  "performance": {
+    "criticalOperations": [
+      "Exception instantiation and throwing"
+    ],
+    "dataVolume": "Minimal",
+    "concurrencyModel": "Thread-safe, immutable exception object"
+  },
+  "classDetails": {
+    "name": "ObjectNotFoundException",
+    "package": "br.com.fullcustom.postgresmultitenancy.services.exceptions",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "serialVersionUID",
+        "type": "long",
+        "visibility": "private",
+        "modifiers": [
+          "static",
+          "final"
+        ],
+        "value": "1L"
+      }
+    ],
+    "methods": [
+      {
+        "name": "ObjectNotFoundException",
+        "type": "constructor",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "msg",
+            "type": "String"
+          }
+        ],
+        "returnType": "void",
+        "modifiers": [],
+        "body": "super(msg)"
+      }
+    ],
+    "relationships": [],
+    "interfaces": [],
+    "superclass": "java.lang.RuntimeException"
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Exception Throwing Flow",
+        "steps": [
+          "Service method detects object not found condition",
+          "ObjectNotFoundException instantiated with error message",
+          "Exception thrown to caller",
+          "Exception propagates through call stack",
+          "Global exception handler catches exception",
+          "Error response generated and returned to client"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "API Client",
+      "Service Layer",
+      "Exception Handler"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Object Not Found Scenario",
+        "preconditions": [
+          "Client requests an object by identifier",
+          "Object does not exist in database"
+        ],
+        "steps": [
+          "Service layer queries database for object",
+          "Query returns no results",
+          "ObjectNotFoundException is thrown with descriptive message",
+          "Exception is caught by global exception handler",
+          "HTTP 404 or appropriate error response is returned to client"
+        ],
+        "postconditions": [
+          "Client receives error notification",
+          "Application state remains consistent",
+          "Error is logged for monitoring"
+        ],
+        "businessRules": [
+          "All object lookup failures must throw ObjectNotFoundException",
+          "Error messages must be descriptive and user-friendly"
+        ]
+      }
+    ]
+  }
+}

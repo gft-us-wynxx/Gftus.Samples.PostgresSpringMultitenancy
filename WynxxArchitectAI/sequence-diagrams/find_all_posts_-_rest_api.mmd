@@ -1,0 +1,38 @@
+sequenceDiagram
+    actor Client
+    participant PostResource
+    participant PostService
+    participant PostgreSQL
+
+    Client->>PostResource: GET posts with X-tenant header
+    Note right of Client: X-tenant: tenant identifier
+    
+    activate PostResource
+    PostResource->>PostResource: findAll(tenant)
+    Note right of PostResource: PostResource.findAll receives tenant from RequestHeader
+    
+    PostResource->>PostResource: System.out.println(tenant)
+    Note right of PostResource: System.out.println logs tenant value
+    
+    PostResource->>PostService: findAll()
+    Note right of PostResource: PostResource calls PostService.findAll
+    
+    activate PostService
+    PostService->>PostgreSQL: SELECT * FROM post
+    Note right of PostService: PostService retrieves all posts for tenant
+    
+    activate PostgreSQL
+    PostgreSQL-->>PostService: return post rows
+    Note right of PostgreSQL: Collection of Post objects
+    deactivate PostgreSQL
+    
+    PostService-->>PostResource: return posts
+    Note right of PostService: PostService returns List[Post]
+    deactivate PostService
+    
+    PostResource->>PostResource: ResponseEntity.ok(posts)
+    Note right of PostResource: PostResource wraps List in ResponseEntity
+    
+    PostResource-->>Client: HTTP 200 with Posts JSON array
+    Note right of PostResource: ResponseEntity.ok().body(obj) returns HTTP 200 with Post list
+    deactivate PostResource

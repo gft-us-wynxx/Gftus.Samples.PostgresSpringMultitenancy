@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant SC as Spring Container
+    participant DSC as DataSourceConfiguration
+    participant DSP as DataSourceProperties
+    participant TRDS as TenantRoutingDataSource
+    participant AC as Application Context
+
+    SC->>DSC: instantiate DataSourceConfiguration (properties: DataSourceProperties)
+    activate DSC
+    
+    DSC->>DSC: invoke dataSource method as Bean
+    Note right of DSC: Bean annotation triggers method
+    activate DSC
+    deactivate DSC
+    
+    DSC->>TRDS: create TenantRoutingDataSource instance
+    activate TRDS
+    TRDS-->>DSC: New routing data source instance
+    deactivate TRDS
+    
+    DSC->>DSP: get target data sources from properties
+    activate DSP
+    DSP-->>DSC: Map[String, DataSource] (Tenant-specific data sources)
+    deactivate DSP
+    
+    DSC->>TRDS: setTargetDataSources(datasources)
+    activate TRDS
+    Note right of TRDS: datasources: Map[Object, Object]
+    deactivate TRDS
+    
+    DSC->>TRDS: setDefaultTargetDataSource(default)
+    activate TRDS
+    Note right of TRDS: defaultDataSource: DataSource
+    deactivate TRDS
+    
+    DSC->>AC: register bean in application context
+    activate AC
+    Note right of AC: Bean is now available for injection
+    deactivate AC
+    
+    deactivate DSC

@@ -1,0 +1,140 @@
+stateDiagram-v2
+    [*] --> ApplicationStartup
+    
+    state ApplicationStartup {
+        [*] --> InitializeSpringBoot
+        InitializeSpringBoot --> ConfigureDataSources
+        ConfigureDataSources --> InitializeDatasources
+        InitializeDatasources --> ExecuteMigrations
+        ExecuteMigrations --> InitializeDatabase
+        InitializeDatabase --> [*]
+    }
+    
+    ApplicationStartup --> RequestProcessing
+    
+    state RequestProcessing {
+        [*] --> ReceiveHTTPRequest
+        ReceiveHTTPRequest --> ExtractTenantContext
+        ExtractTenantContext --> EstablishTenantContext
+        EstablishTenantContext --> AccessTenantContext
+        AccessTenantContext --> ProcessRequest
+        ProcessRequest --> CleanupTenantContext
+        CleanupTenantContext --> [*]
+    }
+    
+    RequestProcessing --> MultiTenantRouting
+    
+    state MultiTenantRouting {
+        [*] --> RetrieveTenantDatasource
+        RetrieveTenantDatasource --> RouteDatabaseConnection
+        RouteDatabaseConnection --> [*]
+    }
+    
+    MultiTenantRouting --> DataManagement
+    
+    state DataManagement {
+        [*] --> ManageAuthors
+        ManageAuthors --> AuthorOperations
+        
+        state AuthorOperations {
+            [*] --> CreateAuthor
+            CreateAuthor --> RetrieveAuthor
+            RetrieveAuthor --> UpdateAuthor
+            UpdateAuthor --> DeleteAuthor
+            DeleteAuthor --> ListAuthors
+            ListAuthors --> [*]
+        }
+        
+        AuthorOperations --> ManagePosts
+        ManagePosts --> PostOperations
+        
+        state PostOperations {
+            [*] --> CreatePost
+            CreatePost --> RetrievePost
+            RetrievePost --> UpdatePost
+            UpdatePost --> DeletePost
+            DeletePost --> [*]
+        }
+        
+        PostOperations --> [*]
+    }
+    
+    DataManagement --> RESTAPI
+    
+    state RESTAPI {
+        [*] --> AuthorEndpoints
+        
+        state AuthorEndpoints {
+            [*] --> ListAllAuthorsAPI
+            ListAllAuthorsAPI --> RetrieveAuthorDetailsAPI
+            RetrieveAuthorDetailsAPI --> CreateAuthorAPI
+            CreateAuthorAPI --> UpdateAuthorAPI
+            UpdateAuthorAPI --> DeleteAuthorAPI
+            DeleteAuthorAPI --> RetrieveAuthorPostsAPI
+            RetrieveAuthorPostsAPI --> [*]
+        }
+        
+        AuthorEndpoints --> PostEndpoints
+        
+        state PostEndpoints {
+            [*] --> RetrieveSinglePostAPI
+            RetrieveSinglePostAPI --> RetrieveAllPostsAPI
+            RetrieveAllPostsAPI --> [*]
+        }
+        
+        PostEndpoints --> ExceptionHandling
+        
+        state ExceptionHandling {
+            [*] --> HandleNotFound
+            HandleNotFound --> [*]
+        }
+        
+        ExceptionHandling --> [*]
+    }
+    
+    RESTAPI --> ResponseSerialization
+    
+    state ResponseSerialization {
+        [*] --> SerializeResponse
+        SerializeResponse --> ReturnHTTPResponse
+        ReturnHTTPResponse --> [*]
+    }
+    
+    ResponseSerialization --> [*]
+    
+    note right of ApplicationStartup
+        System initialization phase:
+        - Load Spring Boot context
+        - Configure multitenant datasources
+        - Execute database migrations
+        - Initialize sample data
+    end note
+    
+    note right of RequestProcessing
+        HTTP request interception:
+        - Extract X-tenant header
+        - Establish threadlocal context
+        - Clean up after completion
+        - Prevent memory leaks
+    end note
+    
+    note right of MultiTenantRouting
+        Tenant context management:
+        - Route to correct datasource
+        - Maintain data isolation
+        - Transparent to application code
+    end note
+    
+    note right of DataManagement
+        Database operations:
+        - CRUD on authors and posts
+        - Enforce tenant boundaries
+        - Maintain referential integrity
+    end note
+    
+    note right of RESTAPI
+        REST endpoints:
+        - Author management (CRUD)
+        - Post management (CRUD)
+        - Exception handling with 404 responses
+    end note

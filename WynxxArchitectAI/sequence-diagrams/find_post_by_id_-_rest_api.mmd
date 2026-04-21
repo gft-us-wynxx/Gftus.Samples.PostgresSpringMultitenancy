@@ -1,0 +1,37 @@
+sequenceDiagram
+    actor Client
+    participant PostResource
+    participant PostService
+    participant PostgreSQL
+    
+    Note over Client,PostgreSQL: Find Post by ID - REST API Flow
+    
+    Client->>PostResource: GET /posts/{id}
+    Note right of Client: Client sends GET request to /posts/{id}
+    
+    activate PostResource
+    PostResource->>PostResource: findById(id)
+    Note right of PostResource: PostResource.findById receives path variable id
+    
+    PostResource->>PostService: findById(id)
+    Note right of PostResource: PostResource calls PostService.findById(id)
+    
+    activate PostService
+    PostService->>PostgreSQL: SELECT * FROM post WHERE id = ?
+    Note right of PostService: PostService retrieves Post from database
+    
+    activate PostgreSQL
+    PostgreSQL-->>PostService: return post row
+    Note right of PostgreSQL: Post object from database
+    deactivate PostgreSQL
+    
+    PostService-->>PostResource: return post
+    Note right of PostService: PostService returns Post object
+    deactivate PostService
+    
+    PostResource->>PostResource: ResponseEntity.ok(post)
+    Note right of PostResource: PostResource wraps Post in ResponseEntity
+    
+    PostResource-->>Client: HTTP 200 with Post JSON
+    Note right of PostResource: ResponseEntity.ok().body(obj) returns HTTP 200 with Post data
+    deactivate PostResource

@@ -1,0 +1,352 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyresourcesexceptionsStandardError.java",
+    "className": "StandardError",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.resources.exceptions",
+    "responsibility": "Standardized error response object for REST API exception handling and error communication",
+    "interactions": [
+      "REST controllers catch exceptions and populate StandardError instances",
+      "Error responses serialized to JSON for HTTP responses",
+      "Exception handlers utilize this class for consistent error formatting"
+    ],
+    "businessKeywords": [
+      "error handling",
+      "exception response",
+      "REST API",
+      "error standardization"
+    ],
+    "technicalCategory": "Exception Handling",
+    "dataPatterns": [
+      "Data Transfer Object (DTO)",
+      "Serializable entity",
+      "Immutable after construction"
+    ],
+    "componentRelationships": [
+      "Used by exception handlers in resource layer",
+      "Returned in HTTP error responses",
+      "Part of multi-tenancy exception handling framework"
+    ]
+  },
+  "dependencies": {
+    "consumers": [
+      "REST exception handlers",
+      "HTTP response serializers",
+      "API clients consuming error responses"
+    ],
+    "providers": [
+      "java.io.Serializable",
+      "Java serialization framework"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot REST API",
+    "resourceRequirements": [
+      "JVM memory for object instantiation",
+      "Serialization support"
+    ],
+    "scalingNeeds": "Stateless, no scaling constraints"
+  },
+  "security": {
+    "dataClassification": "Error information - potentially sensitive",
+    "authenticationNeeds": "",
+    "authorizationPatterns": "No authorization logic in this class"
+  },
+  "performance": {
+    "criticalOperations": [
+      "Object instantiation",
+      "Serialization to JSON"
+    ],
+    "dataVolume": "Small - fixed set of fields",
+    "concurrencyModel": "Thread-safe, immutable after construction"
+  },
+  "classDetails": {
+    "name": "StandardError",
+    "package": "br.com.fullcustom.postgresmultitenancy.resources.exceptions",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "serialVersionUID",
+        "type": "long",
+        "visibility": "private static final",
+        "value": "1L",
+        "purpose": "Serialization version identifier"
+      },
+      {
+        "name": "timestamp",
+        "type": "Long",
+        "visibility": "private",
+        "value": "",
+        "purpose": "Error occurrence timestamp"
+      },
+      {
+        "name": "status",
+        "type": "Integer",
+        "visibility": "private",
+        "value": "",
+        "purpose": "HTTP status code"
+      },
+      {
+        "name": "error",
+        "type": "String",
+        "visibility": "private",
+        "value": "",
+        "purpose": "Error type or category"
+      },
+      {
+        "name": "message",
+        "type": "String",
+        "visibility": "private",
+        "value": "",
+        "purpose": "Error message description"
+      },
+      {
+        "name": "path",
+        "type": "String",
+        "visibility": "private",
+        "value": "",
+        "purpose": "Request path where error occurred"
+      }
+    ],
+    "methods": [
+      {
+        "name": "StandardError",
+        "type": "constructor",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "void",
+        "purpose": "Default no-argument constructor"
+      },
+      {
+        "name": "StandardError",
+        "type": "constructor",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "timestamp",
+            "type": "Long"
+          },
+          {
+            "name": "status",
+            "type": "Integer"
+          },
+          {
+            "name": "error",
+            "type": "String"
+          },
+          {
+            "name": "message",
+            "type": "String"
+          },
+          {
+            "name": "path",
+            "type": "String"
+          }
+        ],
+        "returnType": "void",
+        "purpose": "Parameterized constructor for full initialization"
+      },
+      {
+        "name": "getTimestamp",
+        "type": "getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "Long",
+        "purpose": "Retrieve error timestamp"
+      },
+      {
+        "name": "setTimestamp",
+        "type": "setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "timestamp",
+            "type": "Long"
+          }
+        ],
+        "returnType": "void",
+        "purpose": "Set error timestamp"
+      },
+      {
+        "name": "getStatus",
+        "type": "getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "Integer",
+        "purpose": "Retrieve HTTP status code"
+      },
+      {
+        "name": "setStatus",
+        "type": "setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "status",
+            "type": "Integer"
+          }
+        ],
+        "returnType": "void",
+        "purpose": "Set HTTP status code"
+      },
+      {
+        "name": "getError",
+        "type": "getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "String",
+        "purpose": "Retrieve error type"
+      },
+      {
+        "name": "setError",
+        "type": "setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "error",
+            "type": "String"
+          }
+        ],
+        "returnType": "void",
+        "purpose": "Set error type"
+      },
+      {
+        "name": "getMessage",
+        "type": "getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "String",
+        "purpose": "Retrieve error message"
+      },
+      {
+        "name": "setMessage",
+        "type": "setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "message",
+            "type": "String"
+          }
+        ],
+        "returnType": "void",
+        "purpose": "Set error message"
+      },
+      {
+        "name": "getPath",
+        "type": "getter",
+        "visibility": "public",
+        "parameters": [],
+        "returnType": "String",
+        "purpose": "Retrieve request path"
+      },
+      {
+        "name": "setPath",
+        "type": "setter",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "path",
+            "type": "String"
+          }
+        ],
+        "returnType": "void",
+        "purpose": "Set request path"
+      }
+    ],
+    "relationships": [
+      "Implements Serializable for JSON serialization"
+    ],
+    "interfaces": [
+      "java.io.Serializable"
+    ],
+    "superclass": "java.lang.Object"
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Exception to Error Response",
+        "steps": [
+          "Exception occurs in REST controller",
+          "Exception handler catches exception",
+          "StandardError object instantiated with exception details",
+          "Timestamp set to current time",
+          "HTTP status code assigned",
+          "Error type and message extracted",
+          "Request path captured",
+          "StandardError serialized to JSON",
+          "JSON returned in HTTP response body"
+        ]
+      },
+      {
+        "name": "Object Initialization",
+        "steps": [
+          "StandardError instance created via parameterized constructor",
+          "All fields populated in single operation",
+          "Object ready for serialization"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "REST API Client",
+      "Exception Handler",
+      "HTTP Response Serializer"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Handle Validation Error",
+        "preconditions": [
+          "Request received with invalid data",
+          "Validation fails in controller"
+        ],
+        "steps": [
+          "Validation exception thrown",
+          "Exception handler intercepts exception",
+          "StandardError created with status 400",
+          "Error message set to validation details",
+          "Response returned to client"
+        ],
+        "postconditions": [
+          "Client receives structured error response",
+          "Error details available for debugging"
+        ]
+      },
+      {
+        "name": "Handle Resource Not Found",
+        "preconditions": [
+          "Request for non-existent resource",
+          "Resource lookup fails"
+        ],
+        "steps": [
+          "Not found exception thrown",
+          "Exception handler intercepts exception",
+          "StandardError created with status 404",
+          "Error message set to resource not found",
+          "Response returned to client"
+        ],
+        "postconditions": [
+          "Client receives 404 error response",
+          "Request path included in response"
+        ]
+      },
+      {
+        "name": "Handle Server Error",
+        "preconditions": [
+          "Unexpected error occurs during processing",
+          "Exception thrown from business logic"
+        ],
+        "steps": [
+          "Exception caught by global exception handler",
+          "StandardError created with status 500",
+          "Error message set to generic server error",
+          "Timestamp recorded",
+          "Response returned to client"
+        ],
+        "postconditions": [
+          "Client receives 500 error response",
+          "Error details logged for investigation"
+        ]
+      }
+    ]
+  }
+}

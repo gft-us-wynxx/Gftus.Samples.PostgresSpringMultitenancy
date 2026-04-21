@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant Client as Client
+    participant Controller as REST Controller
+    participant Decoder as URLDecoder
+
+    Client->>Controller: decodeParam(encodedText)
+    Note over Client,Controller: Client calls method with URLencoded text
+    
+    Controller->>Decoder: URLDecoder.decode(encodedText, "UTF-8")
+    Note over Controller,Decoder: Method invokes URLDecoder with UTF8 charset
+    
+    alt UnsupportedEncodingException
+        Decoder-->>Controller: throw UnsupportedEncodingException
+        Note over Decoder,Controller: Exception thrown for unsupported encoding
+        
+        Controller->>Controller: catch UnsupportedEncodingException
+        Note over Controller: Exception caught in try-catch block
+        
+        Controller-->>Client: return ""
+        Note over Controller,Client: Empty string returned on exception
+    else Success
+        Decoder-->>Controller: return decodedString
+        Note over Decoder,Controller: Decoded string on success
+        
+        Controller-->>Client: return decodedString
+        Note over Controller,Client: Decoded parameter string
+    end

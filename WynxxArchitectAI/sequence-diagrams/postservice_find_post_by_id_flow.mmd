@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant Client
+    participant PostService
+    participant PostRepository
+    participant OptionalPost
+    participant Post
+
+    Client->>PostService: findById(id)
+    Note right of Client: Client calls PostService.findById with post ID
+
+    PostService->>PostRepository: findById(id)
+    Note right of PostService: Service delegates to PostRepository.findById
+
+    PostRepository-->>OptionalPost: return OptionalPost
+    Note right of PostRepository: Optional containing Post if found, empty otherwise
+
+    PostService->>OptionalPost: orElseThrow(ObjectNotFoundException.new)
+    Note right of PostService: Service calls orElseThrow on Optional
+
+    alt Post is present in Optional
+        OptionalPost-->>PostService: return Post object
+        Note right of OptionalPost: Post object returned to service
+        PostService-->>Client: return Post
+        Note right of PostService: Post object returned to client
+    else Post is absent in Optional
+        OptionalPost->>PostService: throw ObjectNotFoundException
+        Note right of OptionalPost: ObjectNotFoundException thrown when Optional is empty
+        PostService->>Client: ObjectNotFoundException propagates
+        Note right of PostService: Exception propagates to caller
+    end

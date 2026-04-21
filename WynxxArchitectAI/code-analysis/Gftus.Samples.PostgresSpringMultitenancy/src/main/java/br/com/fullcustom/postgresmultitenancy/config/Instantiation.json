@@ -1,0 +1,238 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyconfigInstantiation.java",
+    "className": "Instantiation",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.config",
+    "responsibility": "Initialize and seed database with sample Author and Post data on application startup",
+    "interactions": [
+      "AuthorRepository for Author persistence operations",
+      "PostRepository for Post persistence operations",
+      "Spring Boot CommandLineRunner for startup execution"
+    ],
+    "businessKeywords": [
+      "data initialization",
+      "sample data seeding",
+      "multi-tenancy configuration",
+      "author management",
+      "post management"
+    ],
+    "technicalCategory": "Configuration and Initialization",
+    "dataPatterns": [
+      "Entity creation and persistence",
+      "Batch operations with Arrays.asList",
+      "Date parsing and timezone handling"
+    ],
+    "componentRelationships": [
+      "Depends on AuthorRepository",
+      "Depends on PostRepository",
+      "Implements CommandLineRunner interface"
+    ]
+  },
+  "dependencies": {
+    "consumers": [],
+    "providers": [
+      "org.springframework.boot.CommandLineRunner",
+      "br.com.fullcustom.postgresmultitenancy.repository.AuthorRepository",
+      "br.com.fullcustom.postgresmultitenancy.repository.PostRepository",
+      "br.com.fullcustom.postgresmultitenancy.domain.Author",
+      "br.com.fullcustom.postgresmultitenancy.domain.Post",
+      "java.text.SimpleDateFormat",
+      "java.util.Arrays",
+      "java.util.TimeZone"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot Application",
+    "resourceRequirements": [
+      "PostgreSQL database connection",
+      "Spring Data JPA",
+      "Spring Framework context"
+    ],
+    "scalingNeeds": "Single instance initialization, no horizontal scaling required"
+  },
+  "security": {
+    "dataClassification": "Sample data, non-sensitive",
+    "authenticationNeeds": "Spring application context authentication",
+    "authorizationPatterns": "No explicit authorization checks in initialization"
+  },
+  "performance": {
+    "criticalOperations": [
+      "deleteAll operations on repositories",
+      "saveAll batch operations",
+      "Date parsing with SimpleDateFormat"
+    ],
+    "dataVolume": "Low volume sample data initialization",
+    "concurrencyModel": "Single-threaded startup execution"
+  },
+  "classDetails": {
+    "name": "Instantiation",
+    "package": "br.com.fullcustom.postgresmultitenancy.config",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "userRepository",
+        "type": "AuthorRepository",
+        "visibility": "private",
+        "annotations": [
+          "Autowired"
+        ]
+      },
+      {
+        "name": "postReposiroty",
+        "type": "PostRepository",
+        "visibility": "private",
+        "annotations": [
+          "Autowired"
+        ]
+      }
+    ],
+    "methods": [
+      {
+        "name": "run",
+        "returnType": "void",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "args",
+            "type": "String[]"
+          }
+        ],
+        "annotations": [
+          "Override"
+        ],
+        "throwsExceptions": [
+          "Exception"
+        ],
+        "operations": [
+          "Create SimpleDateFormat with pattern ddMMyyyy",
+          "Set timezone to GMT",
+          "Delete all authors",
+          "Delete all posts",
+          "Create Author instances: maria, alex, bob",
+          "Save all authors",
+          "Create Post instances: post1, post2",
+          "Save all posts",
+          "Add posts to maria's post collection",
+          "Save maria with updated posts"
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "type": "implements",
+        "target": "CommandLineRunner"
+      },
+      {
+        "type": "depends_on",
+        "target": "AuthorRepository"
+      },
+      {
+        "type": "depends_on",
+        "target": "PostRepository"
+      }
+    ],
+    "interfaces": [
+      "CommandLineRunner"
+    ],
+    "superclass": ""
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Application Startup Initialization",
+        "steps": [
+          {
+            "step": 1,
+            "action": "Spring Boot invokes run method",
+            "actor": "CommandLineRunner"
+          },
+          {
+            "step": 2,
+            "action": "Create SimpleDateFormat with GMT timezone",
+            "actor": "Instantiation"
+          },
+          {
+            "step": 3,
+            "action": "Clear existing authors",
+            "actor": "userRepository.deleteAll"
+          },
+          {
+            "step": 4,
+            "action": "Clear existing posts",
+            "actor": "postReposiroty.deleteAll"
+          },
+          {
+            "step": 5,
+            "action": "Create Author objects",
+            "actor": "Instantiation"
+          },
+          {
+            "step": 6,
+            "action": "Persist authors to database",
+            "actor": "userRepository.saveAll"
+          },
+          {
+            "step": 7,
+            "action": "Create Post objects with parsed dates",
+            "actor": "Instantiation"
+          },
+          {
+            "step": 8,
+            "action": "Persist posts to database",
+            "actor": "postReposiroty.saveAll"
+          },
+          {
+            "step": 9,
+            "action": "Associate posts with author",
+            "actor": "maria.getPosts.addAll"
+          },
+          {
+            "step": 10,
+            "action": "Persist author with post associations",
+            "actor": "userRepository.save"
+          }
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "Spring Boot Application",
+      "System Administrator"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Initialize Database with Sample Data",
+        "preconditions": [
+          "Spring Boot application is starting",
+          "PostgreSQL database is accessible",
+          "AuthorRepository and PostRepository are autowired"
+        ],
+        "steps": [
+          "Application startup triggers CommandLineRunner",
+          "Instantiation.run method executes",
+          "All existing authors and posts are deleted",
+          "Three sample authors are created",
+          "Authors are persisted to database",
+          "Two sample posts are created with dates",
+          "Posts are persisted to database",
+          "Posts are associated with author maria",
+          "Author with associations is saved"
+        ],
+        "postconditions": [
+          "Database contains 3 authors: Maria Brown, Alex Green, Bob Grey",
+          "Database contains 2 posts associated with Maria Brown",
+          "Posts have dates 21/03/2018 and 23/03/2018",
+          "All data is in GMT timezone"
+        ],
+        "businessRules": [
+          "Sample data is created on every application startup",
+          "Previous data is cleared before initialization",
+          "Dates are parsed in GMT timezone",
+          "Posts must be associated with an author"
+        ]
+      }
+    ]
+  }
+}

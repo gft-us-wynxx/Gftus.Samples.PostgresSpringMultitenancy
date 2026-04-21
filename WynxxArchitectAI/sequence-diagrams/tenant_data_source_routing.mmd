@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant Application
+    participant SpringFramework as SpringFramework
+    participant TenantRoutingDataSource
+    participant determineCurrentLookupKey
+    participant ThreadTenantStorage
+    participant AbstractRoutingDataSource
+    participant DataSourcePool as DataSourcePool
+    participant System.out
+
+    Application->>SpringFramework: request database connection
+    activate SpringFramework
+    SpringFramework->>TenantRoutingDataSource: getConnection
+    activate TenantRoutingDataSource
+    TenantRoutingDataSource->>determineCurrentLookupKey: call determineCurrentLookupKey method
+    activate determineCurrentLookupKey
+    par
+        determineCurrentLookupKey->>System.out: log tenant lookup operation
+        Note right of System.out: Logging operation
+    and
+        determineCurrentLookupKey->>ThreadTenantStorage: retrieve tenant identifier
+        activate ThreadTenantStorage
+        ThreadTenantStorage-->>determineCurrentLookupKey: Tenant identifier from thread local storage
+        deactivate ThreadTenantStorage
+    end
+    determineCurrentLookupKey->>AbstractRoutingDataSource: return tenant identifier as lookup key
+    activate AbstractRoutingDataSource
+    deactivate determineCurrentLookupKey
+    AbstractRoutingDataSource->>DataSourcePool: route to tenant-specific data source
+    activate DataSourcePool
+    DataSourcePool-->>TenantRoutingDataSource: connection obtained
+    deactivate DataSourcePool
+    deactivate AbstractRoutingDataSource
+    TenantRoutingDataSource-->>SpringFramework: return connection
+    deactivate TenantRoutingDataSource
+    SpringFramework-->>Application: Tenant-specific database connection
+    deactivate SpringFramework

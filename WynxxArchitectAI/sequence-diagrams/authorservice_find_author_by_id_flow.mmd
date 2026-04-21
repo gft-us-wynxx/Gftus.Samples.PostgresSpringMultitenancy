@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant Client
+    participant AuthorService
+    participant AuthorRepository
+    participant OptionalAuthor
+    participant Author
+
+    Client->>AuthorService: findById(id)
+    Note right of Client: Client calls AuthorService.findById with author ID
+
+    AuthorService->>AuthorRepository: findById(id)
+    Note right of AuthorService: AuthorService calls repository.findById
+
+    AuthorRepository->>OptionalAuthor: return OptionalAuthor
+    Note right of AuthorRepository: Optional containing Author if found, empty otherwise
+
+    alt Author is present in Optional
+        OptionalAuthor->>AuthorService: return Author object
+        Note right of OptionalAuthor: Author object returned
+
+        AuthorService->>Client: return Author
+        Note right of AuthorService: Author object returned to client
+    else Author is absent in Optional
+        OptionalAuthor->>AuthorService: throw ObjectNotFoundException
+        Note right of OptionalAuthor: ObjectNotFoundException thrown when author not found
+
+        AuthorService->>Client: ObjectNotFoundException propagates
+        Note right of AuthorService: Exception propagates to caller
+    end

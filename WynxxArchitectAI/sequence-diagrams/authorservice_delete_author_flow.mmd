@@ -1,0 +1,40 @@
+sequenceDiagram
+    participant Client
+    participant AuthorService
+    participant AuthorRepository
+    participant Database
+
+    Client->>AuthorService: delete(id)
+    Note over AuthorService: Client calls AuthorService.delete with author ID
+
+    activate AuthorService
+    AuthorService->>AuthorService: findById(id)
+    Note over AuthorService: AuthorService calls findById to verify existence
+
+    alt Author found
+        AuthorService->>AuthorRepository: deleteById(id)
+        Note over AuthorRepository: repository.deleteById executed
+
+        activate AuthorRepository
+        AuthorRepository->>Database: DELETE FROM authors WHERE id = ?
+        Note over Database: Author removed from database
+
+        activate Database
+        Database-->>AuthorRepository: return success
+        Note over Database: Deletion completed
+        deactivate Database
+
+        AuthorRepository-->>AuthorService: return
+        deactivate AuthorRepository
+
+        AuthorService-->>Client: return success
+        Note over Client: Deletion confirmed
+    else Author not found
+        AuthorService->>AuthorService: throw ObjectNotFoundException
+        Note over AuthorService: ObjectNotFoundException if author does not exist
+
+        AuthorService-->>Client: ObjectNotFoundException propagates
+        Note over Client: Exception propagates to caller
+    end
+
+    deactivate AuthorService

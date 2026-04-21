@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant Client
+    participant PostService
+    participant PostRepository
+    participant ListPost
+
+    Client->>PostService: findAll()
+    Note right of Client: Client calls PostService.findAll
+
+    PostService->>PostRepository: findAll()
+    Note right of PostService: Service delegates to PostRepository.findAll
+
+    PostRepository->>ListPost: return ListPost
+    Note right of PostRepository: List of all Post objects from database
+
+    ListPost-->>PostService: ListPost
+
+    alt Repository throws exception
+        PostRepository->>PostService: throw DatabaseException
+        Note right of PostRepository: Repository exceptions propagate to caller
+        PostService-->>Client: DatabaseException
+    else Success
+        PostService-->>Client: ListPost
+        Note right of PostService: List of Post objects returned to client
+    end

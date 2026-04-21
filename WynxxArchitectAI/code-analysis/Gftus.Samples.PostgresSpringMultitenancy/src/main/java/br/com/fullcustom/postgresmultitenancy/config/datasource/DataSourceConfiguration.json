@@ -1,0 +1,243 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyconfigdatasourceDataSourceConfiguration.java",
+    "className": "DataSourceConfiguration",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.config.datasource",
+    "responsibility": "Configures and manages multi-tenant data source routing with Flyway database migration support",
+    "interactions": [
+      "Receives DataSourceProperties configuration",
+      "Creates TenantRoutingDataSource bean",
+      "Triggers Flyway migrations on initialization",
+      "Routes database connections to tenant-specific data sources"
+    ],
+    "businessKeywords": [
+      "multi-tenancy",
+      "data source routing",
+      "database migration",
+      "tenant isolation",
+      "configuration management"
+    ],
+    "technicalCategory": "Infrastructure Configuration",
+    "dataPatterns": [
+      "Multi-tenant data source routing",
+      "Default data source fallback",
+      "Lazy initialization with PostConstruct"
+    ],
+    "componentRelationships": [
+      "Depends on DataSourceProperties",
+      "Creates TenantRoutingDataSource",
+      "Integrates with Flyway for migrations",
+      "Spring Framework configuration component"
+    ],
+    "dependencies": {
+      "consumers": [
+        "Spring Application Context",
+        "Tenant routing mechanism"
+      ],
+      "providers": [
+        "DataSourceProperties",
+        "Flyway",
+        "Spring Framework",
+        "javax.sql.DataSource"
+      ]
+    },
+    "infrastructure": {
+      "deploymentType": "Spring Boot Application",
+      "resourceRequirements": [
+        "Multiple database connections",
+        "Flyway migration resources",
+        "Configuration properties"
+      ],
+      "scalingNeeds": "Horizontal scaling with tenant-aware connection pooling"
+    },
+    "security": {
+      "dataClassification": "Sensitive - Database credentials and tenant data",
+      "authenticationNeeds": "Database authentication per tenant",
+      "authorizationPatterns": "Tenant isolation through routing"
+    },
+    "performance": {
+      "criticalOperations": [
+        "Data source routing resolution",
+        "Database migration execution",
+        "Connection pool management"
+      ],
+      "dataVolume": "Variable per tenant",
+      "concurrencyModel": "Multi-threaded with connection pooling"
+    }
+  },
+  "classDetails": {
+    "name": "DataSourceConfiguration",
+    "package": "br.com.fullcustom.postgresmultitenancy.config.datasource",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "dataSourceProperties",
+        "type": "DataSourceProperties",
+        "visibility": "private",
+        "modifiers": [
+          "final"
+        ],
+        "description": "Configuration properties for data sources"
+      }
+    ],
+    "methods": [
+      {
+        "name": "DataSourceConfiguration",
+        "type": "constructor",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "dataSourceProperties",
+            "type": "DataSourceProperties"
+          }
+        ],
+        "description": "Initializes configuration with data source properties"
+      },
+      {
+        "name": "dataSource",
+        "type": "DataSource",
+        "visibility": "public",
+        "modifiers": [
+          "Bean"
+        ],
+        "parameters": [],
+        "description": "Creates and configures the tenant routing data source bean",
+        "returnType": "DataSource"
+      },
+      {
+        "name": "migrate",
+        "type": "void",
+        "visibility": "public",
+        "modifiers": [
+          "PostConstruct"
+        ],
+        "parameters": [],
+        "description": "Executes database migrations for all configured data sources"
+      },
+      {
+        "name": "migrateDataSource",
+        "type": "void",
+        "visibility": "private",
+        "parameters": [
+          {
+            "name": "dataSource",
+            "type": "DataSource"
+          }
+        ],
+        "description": "Executes Flyway migration for a specific data source"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "dependency",
+        "target": "DataSourceProperties",
+        "description": "Receives configuration"
+      },
+      {
+        "type": "creates",
+        "target": "TenantRoutingDataSource",
+        "description": "Instantiates custom routing data source"
+      },
+      {
+        "type": "uses",
+        "target": "Flyway",
+        "description": "Performs database migrations"
+      }
+    ],
+    "interfaces": [],
+    "superclass": ""
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Spring Bean Initialization",
+        "steps": [
+          "Spring instantiates DataSourceConfiguration with DataSourceProperties",
+          "dataSource() method is invoked as Bean",
+          "TenantRoutingDataSource is created",
+          "Target data sources are set from properties",
+          "Default data source is configured",
+          "Bean is registered in application context"
+        ]
+      },
+      {
+        "name": "Post-Construction Migration",
+        "steps": [
+          "migrate() method is invoked via PostConstruct",
+          "Retrieves all configured data sources from properties",
+          "Streams through each data source",
+          "Calls migrateDataSource for each source",
+          "Flyway is configured with the data source",
+          "Migration is executed"
+        ]
+      },
+      {
+        "name": "Data Source Routing",
+        "steps": [
+          "Application requests database connection",
+          "TenantRoutingDataSource determines tenant context",
+          "Routes to appropriate tenant-specific data source",
+          "Connection is obtained from target data source"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "Spring Framework",
+      "Application Administrator",
+      "Tenant System"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Configure Multi-Tenant Data Sources",
+        "preconditions": [
+          "DataSourceProperties are available",
+          "Multiple database configurations are defined"
+        ],
+        "steps": [
+          "Spring loads DataSourceConfiguration",
+          "Constructor receives DataSourceProperties",
+          "dataSource() bean method creates TenantRoutingDataSource",
+          "All tenant data sources are registered",
+          "Default data source is set as fallback"
+        ],
+        "postconditions": [
+          "Multi-tenant data source bean is available",
+          "Routing is configured and ready"
+        ],
+        "businessRules": [
+          "Each tenant must have a configured data source",
+          "A default data source must be specified",
+          "Data sources must be accessible at configuration time"
+        ]
+      },
+      {
+        "name": "Execute Database Migrations",
+        "preconditions": [
+          "Data source bean is initialized",
+          "Flyway is available on classpath",
+          "Migration scripts exist"
+        ],
+        "steps": [
+          "Application startup completes bean initialization",
+          "PostConstruct trigger invokes migrate()",
+          "All data sources are retrieved from properties",
+          "For each data source, migrateDataSource is called",
+          "Flyway is configured with the data source",
+          "Pending migrations are executed"
+        ],
+        "postconditions": [
+          "All tenant databases are migrated",
+          "Schema is up-to-date across all tenants"
+        ],
+        "businessRules": [
+          "Migrations must complete before application serves requests",
+          "Each tenant database is migrated independently",
+          "Migration failures should prevent application startup"
+        ]
+      }
+    ]
+  }
+}

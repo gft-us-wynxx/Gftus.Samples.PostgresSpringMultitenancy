@@ -1,0 +1,216 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyresourcesPostResource.java",
+    "className": "PostResource",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.resources",
+    "responsibility": "REST API endpoint controller for managing Post entities with multi-tenancy support via tenant headers",
+    "interactions": [
+      "Receives HTTP requests for post retrieval",
+      "Delegates business logic to PostService",
+      "Returns ResponseEntity with Post data",
+      "Processes tenant identification from request headers"
+    ],
+    "businessKeywords": [
+      "post management",
+      "multi-tenancy",
+      "tenant isolation",
+      "REST API",
+      "data retrieval"
+    ],
+    "technicalCategory": "REST Controller",
+    "dataPatterns": [
+      "Request-Response pattern",
+      "Header-based tenant identification",
+      "Path variable for resource identification"
+    ],
+    "componentRelationships": [
+      "PostResource -> PostService",
+      "PostResource -> Post domain model"
+    ],
+    "dependencies": {
+      "consumers": [
+        "HTTP clients",
+        "API consumers"
+      ],
+      "providers": [
+        "PostService",
+        "Spring Framework",
+        "Spring Web"
+      ]
+    },
+    "infrastructure": {
+      "deploymentType": "Spring Boot application",
+      "resourceRequirements": [
+        "HTTP server",
+        "Database connection pool",
+        "Spring container"
+      ],
+      "scalingNeeds": "Horizontal scaling with load balancer for multi-tenant support"
+    },
+    "security": {
+      "dataClassification": "Tenant-specific data",
+      "authenticationNeeds": "Request header validation for tenant identification",
+      "authorizationPatterns": [
+        "Tenant-based data isolation",
+        "Header-based tenant routing"
+      ]
+    },
+    "performance": {
+      "criticalOperations": [
+        "findById",
+        "findAll"
+      ],
+      "dataVolume": "Variable based on tenant data size",
+      "concurrencyModel": "Multi-threaded HTTP request handling"
+    }
+  },
+  "classDetails": {
+    "name": "PostResource",
+    "package": "br.com.fullcustom.postgresmultitenancy.resources",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "service",
+        "type": "PostService",
+        "visibility": "private",
+        "modifiers": [
+          "Autowired"
+        ],
+        "description": "Spring-managed dependency for post business logic"
+      }
+    ],
+    "methods": [
+      {
+        "name": "findById",
+        "returnType": "ResponseEntity<Post>",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long",
+            "modifiers": [
+              "PathVariable"
+            ]
+          }
+        ],
+        "modifiers": [
+          "GetMapping"
+        ],
+        "description": "Retrieve a single post by ID"
+      },
+      {
+        "name": "findAll",
+        "returnType": "ResponseEntity<List<Post>>",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "tenant",
+            "type": "String",
+            "modifiers": [
+              "RequestHeader"
+            ]
+          }
+        ],
+        "modifiers": [
+          "GetMapping"
+        ],
+        "description": "Retrieve all posts for the specified tenant"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "dependency",
+        "target": "PostService",
+        "description": "Service layer dependency"
+      },
+      {
+        "type": "uses",
+        "target": "Post",
+        "description": "Domain model"
+      }
+    ],
+    "interfaces": [],
+    "superclass": ""
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Find Post by ID",
+        "steps": [
+          "Client sends GET request to /posts/{id}",
+          "PostResource.findById receives path variable id",
+          "PostResource calls PostService.findById(id)",
+          "PostService retrieves Post from database",
+          "PostService returns Post object",
+          "PostResource wraps Post in ResponseEntity",
+          "ResponseEntity.ok().body(obj) returns HTTP 200 with Post data"
+        ]
+      },
+      {
+        "name": "Find All Posts",
+        "steps": [
+          "Client sends GET request to /posts with X-tenant header",
+          "PostResource.findAll receives tenant from RequestHeader",
+          "System.out.println logs tenant value",
+          "PostResource calls PostService.findAll()",
+          "PostService retrieves all posts for tenant",
+          "PostService returns List<Post>",
+          "PostResource wraps List in ResponseEntity",
+          "ResponseEntity.ok().body(obj) returns HTTP 200 with Post list"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "API Client",
+      "Tenant User"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Retrieve Single Post",
+        "actor": "API Client",
+        "preconditions": [
+          "Post with given ID exists",
+          "Client has valid HTTP access"
+        ],
+        "steps": [
+          "Client requests GET /posts/{id}",
+          "System retrieves post by ID",
+          "System returns post data with HTTP 200"
+        ],
+        "postconditions": [
+          "Post data returned to client",
+          "No data modification occurred"
+        ],
+        "businessRules": [
+          "Post must exist in database"
+        ]
+      },
+      {
+        "name": "Retrieve All Posts for Tenant",
+        "actor": "Tenant User",
+        "preconditions": [
+          "Valid X-tenant header provided",
+          "Tenant has posts in database"
+        ],
+        "steps": [
+          "Client requests GET /posts with X-tenant header",
+          "System logs tenant identifier",
+          "System retrieves all posts for tenant",
+          "System returns post list with HTTP 200"
+        ],
+        "postconditions": [
+          "Tenant-specific post list returned",
+          "No cross-tenant data exposure"
+        ],
+        "businessRules": [
+          "Only tenant-specific posts returned",
+          "Tenant isolation enforced",
+          "Header-based tenant identification required"
+        ]
+      }
+    ]
+  }
+}

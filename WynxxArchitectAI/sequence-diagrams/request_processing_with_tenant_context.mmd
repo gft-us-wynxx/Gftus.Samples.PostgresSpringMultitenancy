@@ -1,0 +1,78 @@
+sequenceDiagram
+    actor Client
+    participant DispatcherServlet
+    participant HeaderTenantInterceptor
+    participant ThreadTenantStorage
+    participant Controller
+    participant Repository
+    participant Database
+
+    Note over Client,Database: Request Processing with Tenant Context
+
+    Client->>DispatcherServlet: HTTP Request with XTenantID header
+    Note right of DispatcherServlet: Request arrives at Spring DispatcherServlet XTenantID: tenant123
+
+    DispatcherServlet->>HeaderTenantInterceptor: preHandle(request, response, handler)
+    Note right of HeaderTenantInterceptor: Interceptor intercepts request before handler execution
+
+    HeaderTenantInterceptor->>HeaderTenantInterceptor: Extract tenant header from request
+    Note right of HeaderTenantInterceptor: Step 1: Extract XTenantID header value headerName: XTenantID
+
+    HeaderTenantInterceptor->>ThreadTenantStorage: setTenantId(tenantId)
+    Note right of ThreadTenantStorage: Step 2: Store tenant ID in ThreadLocal storage tenantId: tenant123
+
+    ThreadTenantStorage->>ThreadTenantStorage: ThreadLocal.set(tenantId)
+    Note right of ThreadTenantStorage: Store tenant identifier in ThreadLocal variable tenantId: tenant123
+
+    alt Missing XTenantID header
+        HeaderTenantInterceptor->>HeaderTenantInterceptor: Handle missing tenant header
+        Note right of HeaderTenantInterceptor: Tenant header not found in request
+        HeaderTenantInterceptor-->>Client: HTTP 400 Bad Request
+        Note right of Client: Request rejected due to missing tenant context
+    else XTenantID header present
+        DispatcherServlet->>Controller: Handle request with tenant context
+        Note right of Controller: Step 3: Request processing continues with tenant context established
+
+        Controller->>ThreadTenantStorage: getTenantId()
+        ThreadTenantStorage-->>Controller: tenant123
+        Note right of Controller: Controller retrieves tenant context for business logic
+
+        alt Exception during request processing
+            Controller->>Controller: Throw exception
+            Note right of Controller: Exception thrown during business logic
+            DispatcherServlet->>HeaderTenantInterceptor: afterCompletion(request, response, handler, exception)
+            Note right of HeaderTenantInterceptor: Interceptor still called for cleanup
+            HeaderTenantInterceptor->>ThreadTenantStorage: clear()
+            Note right of ThreadTenantStorage: Cleanup still executed to prevent ThreadLocal leak
+        else Normal flow
+            Controller->>Repository: findById(id) or save(entity)
+            Note right of Repository: Repository operations execute with tenant context tenantContext: tenant123
+
+            Repository->>Database: Execute SQL with tenant filter
+            Note right of Database: Database query includes tenant isolation sql: SELECT * FROM authors WHERE tenantid = tenant123
+
+            Database-->>Repository: Return query results
+            Note right of Repository: Database returns filtered results
+
+            Repository-->>Controller: Return entity or collection
+            Note right of Controller: Repository returns processed results
+
+            Controller-->>DispatcherServlet: Return response
+            Note right of DispatcherServlet: Controller returns response to DispatcherServlet
+
+            DispatcherServlet->>HeaderTenantInterceptor: postHandle(request, response, handler, modelAndView)
+            Note right of HeaderTenantInterceptor: Step 3: Postprocessing after handler execution
+
+            DispatcherServlet->>HeaderTenantInterceptor: afterCompletion(request, response, handler, exception)
+            Note right of HeaderTenantInterceptor: Step 4: Cleanup after request completion
+
+            HeaderTenantInterceptor->>ThreadTenantStorage: clear()
+            Note right of ThreadTenantStorage: Step 4: Clear ThreadLocal storage
+
+            ThreadTenantStorage->>ThreadTenantStorage: ThreadLocal.remove()
+            Note right of ThreadTenantStorage: Remove tenant identifier from ThreadLocal
+
+            DispatcherServlet-->>Client: HTTP Response
+            Note right of Client: Step 5: Request processing complete, response sent to client
+        end
+    end

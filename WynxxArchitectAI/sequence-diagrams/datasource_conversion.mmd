@@ -1,0 +1,47 @@
+sequenceDiagram
+    participant DataSourceProperties
+    participant ConfigurationMap as Configuration Map
+    participant SystemOut as System.out
+    participant DataSourceBuilder
+    participant DataSource
+
+    DataSourceProperties->>DataSourceProperties: invoke convert method(config: Map[String, String])
+    activate DataSourceProperties
+    
+    DataSourceProperties->>SystemOut: log datasource creation message
+    note right of SystemOut: Logging operation
+    
+    DataSourceProperties->>ConfigurationMap: extract jdbcUrl from configuration
+    activate ConfigurationMap
+    ConfigurationMap-->>DataSourceProperties: String (JDBC connection URL)
+    deactivate ConfigurationMap
+    
+    DataSourceProperties->>ConfigurationMap: extract driverClassName from configuration
+    activate ConfigurationMap
+    ConfigurationMap-->>DataSourceProperties: String (JDBC driver class name)
+    deactivate ConfigurationMap
+    
+    DataSourceProperties->>ConfigurationMap: extract username from configuration
+    activate ConfigurationMap
+    ConfigurationMap-->>DataSourceProperties: String (Database username)
+    deactivate ConfigurationMap
+    
+    DataSourceProperties->>ConfigurationMap: extract password from configuration
+    activate ConfigurationMap
+    ConfigurationMap-->>DataSourceProperties: String (Database password)
+    deactivate ConfigurationMap
+    
+    DataSourceProperties->>DataSourceBuilder: build configured DataSource(url: String, driverClassName: String, username: String, password: String)
+    activate DataSourceBuilder
+    
+    DataSourceBuilder->>DataSource: create DataSource instance
+    activate DataSource
+    DataSource-->>DataSourceBuilder: DataSource (Configured datasource)
+    deactivate DataSource
+    
+    DataSourceBuilder-->>DataSourceProperties: DataSource
+    deactivate DataSourceBuilder
+    
+    DataSourceProperties-->>DataSourceProperties: return DataSource instance
+    note right of DataSourceProperties: Fully configured datasource
+    deactivate DataSourceProperties

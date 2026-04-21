@@ -1,0 +1,366 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyservicesAuthorService.java",
+    "className": "AuthorService",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.services",
+    "responsibility": "Provides business logic for Author entity management including CRUD operations and data persistence coordination",
+    "interactions": [
+      "AuthorRepository for data access",
+      "Author domain model for entity representation",
+      "ObjectNotFoundException for error handling"
+    ],
+    "businessKeywords": [
+      "Author management",
+      "CRUD operations",
+      "Data persistence",
+      "Multi-tenancy support"
+    ],
+    "technicalCategory": "Service Layer",
+    "dataPatterns": [
+      "Repository pattern",
+      "Optional pattern for null safety",
+      "Exception-based error handling"
+    ],
+    "componentRelationships": [
+      {
+        "component": "AuthorRepository",
+        "type": "dependency",
+        "nature": "data access"
+      },
+      {
+        "component": "Author",
+        "type": "domain model",
+        "nature": "entity representation"
+      }
+    ],
+    "dependencies": {
+      "external": [
+        "org.springframework.beans.factory.annotation.Autowired",
+        "org.springframework.stereotype.Service",
+        "java.util.List",
+        "java.util.Optional"
+      ],
+      "internal": [
+        "br.com.fullcustom.postgresmultitenancy.domain.Author",
+        "br.com.fullcustom.postgresmultitenancy.repository.AuthorRepository",
+        "br.com.fullcustom.postgresmultitenancy.services.exceptions.ObjectNotFoundException"
+      ]
+    },
+    "consumers": [
+      "Controllers or API endpoints consuming AuthorService"
+    ],
+    "providers": [
+      "AuthorRepository",
+      "Author domain model"
+    ],
+    "infrastructure": {
+      "deploymentType": "Spring Boot microservice",
+      "resourceRequirements": [
+        "Spring Framework context",
+        "Database connection pool",
+        "PostgreSQL database"
+      ],
+      "scalingNeeds": "Horizontal scaling with stateless service design"
+    },
+    "security": {
+      "dataClassification": "Author personal data",
+      "authenticationNeeds": "Spring Security integration required",
+      "authorizationPatterns": "Role-based access control recommended for CRUD operations"
+    },
+    "performance": {
+      "criticalOperations": [
+        "findAll",
+        "findById",
+        "update"
+      ],
+      "dataVolume": "Unbounded list operations",
+      "concurrencyModel": "Thread-safe repository operations"
+    }
+  },
+  "classDetails": {
+    "name": "AuthorService",
+    "package": "br.com.fullcustom.postgresmultitenancy.services",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "repository",
+        "type": "AuthorRepository",
+        "visibility": "public",
+        "modifiers": [
+          "Autowired"
+        ],
+        "description": "Spring-injected repository for Author data access"
+      }
+    ],
+    "methods": [
+      {
+        "name": "findAll",
+        "returnType": "List<Author>",
+        "visibility": "public",
+        "parameters": [],
+        "modifiers": [],
+        "description": "Retrieves all authors from the repository"
+      },
+      {
+        "name": "findById",
+        "returnType": "Author",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long"
+          }
+        ],
+        "modifiers": [],
+        "description": "Finds an author by ID, throws ObjectNotFoundException if not found"
+      },
+      {
+        "name": "insert",
+        "returnType": "Author",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "obj",
+            "type": "Author"
+          }
+        ],
+        "modifiers": [],
+        "description": "Inserts a new author into the repository"
+      },
+      {
+        "name": "delete",
+        "returnType": "void",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long"
+          }
+        ],
+        "modifiers": [],
+        "description": "Deletes an author by ID after verifying existence"
+      },
+      {
+        "name": "update",
+        "returnType": "Author",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "obj",
+            "type": "Author"
+          }
+        ],
+        "modifiers": [],
+        "description": "Updates an existing author with new data"
+      },
+      {
+        "name": "updateData",
+        "returnType": "void",
+        "visibility": "private",
+        "parameters": [
+          {
+            "name": "newObj",
+            "type": "Author"
+          },
+          {
+            "name": "obj",
+            "type": "Author"
+          }
+        ],
+        "modifiers": [],
+        "description": "Helper method to transfer data from source to target author object"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "uses",
+        "target": "AuthorRepository",
+        "cardinality": "1:1"
+      },
+      {
+        "type": "manages",
+        "target": "Author",
+        "cardinality": "1:*"
+      }
+    ],
+    "interfaces": [],
+    "superclass": ""
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Find All Authors",
+        "steps": [
+          "Client calls findAll()",
+          "AuthorService delegates to repository.findAll()",
+          "Repository queries database",
+          "List<Author> returned to client"
+        ],
+        "exceptionPaths": []
+      },
+      {
+        "name": "Find Author By ID",
+        "steps": [
+          "Client calls findById(Long id)",
+          "AuthorService calls repository.findById(id)",
+          "Repository returns Optional<Author>",
+          "If present, Author returned",
+          "If empty, ObjectNotFoundException thrown"
+        ],
+        "exceptionPaths": [
+          "ObjectNotFoundException when author not found"
+        ]
+      },
+      {
+        "name": "Insert Author",
+        "steps": [
+          "Client calls insert(Author obj)",
+          "AuthorService delegates to repository.save(obj)",
+          "Repository persists author to database",
+          "Persisted Author returned to client"
+        ],
+        "exceptionPaths": []
+      },
+      {
+        "name": "Delete Author",
+        "steps": [
+          "Client calls delete(Long id)",
+          "AuthorService calls findById(id) to verify existence",
+          "If found, repository.deleteById(id) executed",
+          "Author removed from database"
+        ],
+        "exceptionPaths": [
+          "ObjectNotFoundException if author does not exist"
+        ]
+      },
+      {
+        "name": "Update Author",
+        "steps": [
+          "Client calls update(Author obj)",
+          "AuthorService calls findById(obj.getId()) to retrieve existing author",
+          "updateData(newObj, obj) transfers new values",
+          "repository.save(newObj) persists changes",
+          "Updated Author returned to client"
+        ],
+        "exceptionPaths": [
+          "ObjectNotFoundException if author does not exist"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "API Client",
+      "System Administrator",
+      "End User"
+    ],
+    "mainScenarios": [
+      {
+        "useCase": "List All Authors",
+        "actor": "API Client",
+        "preconditions": [
+          "AuthorService is initialized",
+          "Database connection is available"
+        ],
+        "mainFlow": [
+          "Actor requests all authors",
+          "System retrieves all authors from repository",
+          "System returns list of authors"
+        ],
+        "postconditions": [
+          "Complete list of authors returned to actor"
+        ],
+        "businessRules": [
+          "No filtering or pagination applied"
+        ]
+      },
+      {
+        "useCase": "Retrieve Author Details",
+        "actor": "API Client",
+        "preconditions": [
+          "Author ID is known",
+          "Author exists in database"
+        ],
+        "mainFlow": [
+          "Actor provides author ID",
+          "System queries repository for author",
+          "System returns author details"
+        ],
+        "alternativeFlow": [
+          "If author not found, system throws ObjectNotFoundException"
+        ],
+        "postconditions": [
+          "Author details returned or exception thrown"
+        ],
+        "businessRules": [
+          "Author must exist in database"
+        ]
+      },
+      {
+        "useCase": "Create New Author",
+        "actor": "System Administrator",
+        "preconditions": [
+          "Author data is valid",
+          "Database connection available"
+        ],
+        "mainFlow": [
+          "Actor provides author information",
+          "System validates and persists author",
+          "System returns created author with ID"
+        ],
+        "postconditions": [
+          "New author record created in database"
+        ],
+        "businessRules": [
+          "Author data must be complete"
+        ]
+      },
+      {
+        "useCase": "Update Author Information",
+        "actor": "System Administrator",
+        "preconditions": [
+          "Author exists in database",
+          "Updated data is valid"
+        ],
+        "mainFlow": [
+          "Actor provides author ID and new data",
+          "System retrieves existing author",
+          "System updates author fields",
+          "System persists changes"
+        ],
+        "alternativeFlow": [
+          "If author not found, system throws ObjectNotFoundException"
+        ],
+        "postconditions": [
+          "Author record updated in database"
+        ],
+        "businessRules": [
+          "Only name and email fields are updatable"
+        ]
+      },
+      {
+        "useCase": "Delete Author",
+        "actor": "System Administrator",
+        "preconditions": [
+          "Author exists in database",
+          "Author ID is provided"
+        ],
+        "mainFlow": [
+          "Actor provides author ID",
+          "System verifies author existence",
+          "System deletes author record"
+        ],
+        "alternativeFlow": [
+          "If author not found, system throws ObjectNotFoundException"
+        ],
+        "postconditions": [
+          "Author record removed from database"
+        ],
+        "businessRules": [
+          "Author must exist before deletion"
+        ]
+      }
+    ]
+  }
+}

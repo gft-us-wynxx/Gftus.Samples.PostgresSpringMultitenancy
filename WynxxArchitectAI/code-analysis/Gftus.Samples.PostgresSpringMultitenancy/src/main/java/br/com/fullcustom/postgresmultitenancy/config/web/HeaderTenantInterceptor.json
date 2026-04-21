@@ -1,0 +1,252 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyconfigwebHeaderTenantInterceptor.java",
+    "className": "HeaderTenantInterceptor",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.config.web",
+    "responsibility": "Intercepts HTTP requests to extract tenant identification from request headers and manage tenant context storage for multi-tenancy support",
+    "interactions": [
+      "Intercepts WebRequest objects",
+      "Extracts tenant header information",
+      "Manages ThreadTenantStorage lifecycle",
+      "Clears tenant context after request completion"
+    ],
+    "businessKeywords": [
+      "multi-tenancy",
+      "tenant-isolation",
+      "request-interception",
+      "tenant-context"
+    ],
+    "technicalCategory": "Web Request Interceptor",
+    "dataPatterns": [
+      "Header-based tenant identification",
+      "Thread-local storage pattern",
+      "Request-scoped context management"
+    ],
+    "componentRelationships": [
+      "Spring WebRequestInterceptor implementation",
+      "ThreadTenantStorage dependency",
+      "HTTP request header consumer"
+    ],
+    "dependencies": {
+      "consumers": [
+        "Spring Web Framework",
+        "ThreadTenantStorage"
+      ],
+      "providers": [
+        "WebRequest",
+        "ModelMap",
+        "WebRequestInterceptor"
+      ]
+    },
+    "infrastructure": {
+      "deploymentType": "Spring Application Component",
+      "resourceRequirements": [
+        "HTTP request processing capability",
+        "Thread-local storage support"
+      ],
+      "scalingNeeds": "Stateless - scales horizontally with application instances"
+    },
+    "security": {
+      "dataClassification": "Tenant Identifier",
+      "authenticationNeeds": "Request header validation",
+      "authorizationPatterns": [
+        "Tenant-based request routing",
+        "Tenant context isolation"
+      ]
+    },
+    "performance": {
+      "criticalOperations": [
+        "Header extraction",
+        "ThreadTenantStorage operations"
+      ],
+      "dataVolume": "Low - single header value per request",
+      "concurrencyModel": "Thread-safe via thread-local storage"
+    }
+  },
+  "classDetails": {
+    "name": "HeaderTenantInterceptor",
+    "package": "br.com.fullcustom.postgresmultitenancy.config.web",
+    "type": "Class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "TENANTHEADER",
+        "type": "String",
+        "visibility": "public static final",
+        "value": "Xtenant",
+        "description": "Constant for tenant header name"
+      }
+    ],
+    "methods": [
+      {
+        "name": "preHandleWebRequest",
+        "visibility": "public",
+        "returnType": "void",
+        "parameters": [
+          {
+            "name": "request",
+            "type": "WebRequest"
+          }
+        ],
+        "exceptions": [
+          "Exception"
+        ],
+        "override": true,
+        "description": "Handles pre-request processing to extract and store tenant information"
+      },
+      {
+        "name": "postHandleWebRequest",
+        "visibility": "public",
+        "returnType": "void",
+        "parameters": [
+          {
+            "name": "request",
+            "type": "WebRequest"
+          },
+          {
+            "name": "model",
+            "type": "ModelMap"
+          }
+        ],
+        "exceptions": [
+          "Exception"
+        ],
+        "override": true,
+        "description": "Handles post-request processing"
+      },
+      {
+        "name": "afterCompletionWebRequest",
+        "visibility": "public",
+        "returnType": "void",
+        "parameters": [
+          {
+            "name": "request",
+            "type": "WebRequest"
+          },
+          {
+            "name": "ex",
+            "type": "Exception"
+          }
+        ],
+        "exceptions": [
+          "Exception"
+        ],
+        "override": true,
+        "description": "Clears tenant context after request completion"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "implements",
+        "target": "WebRequestInterceptor"
+      },
+      {
+        "type": "uses",
+        "target": "ThreadTenantStorage"
+      }
+    ],
+    "interfaces": [
+      "WebRequestInterceptor"
+    ],
+    "superclass": ""
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Request Processing Flow",
+        "steps": [
+          {
+            "step": 1,
+            "method": "preHandleWebRequest",
+            "action": "Extract tenant header from request",
+            "nextStep": 2
+          },
+          {
+            "step": 2,
+            "method": "preHandleWebRequest",
+            "action": "Store tenant ID in ThreadTenantStorage",
+            "nextStep": 3
+          },
+          {
+            "step": 3,
+            "method": "postHandleWebRequest",
+            "action": "Process request with tenant context",
+            "nextStep": 4
+          },
+          {
+            "step": 4,
+            "method": "afterCompletionWebRequest",
+            "action": "Clear ThreadTenantStorage",
+            "nextStep": 5
+          },
+          {
+            "step": 5,
+            "method": "afterCompletionWebRequest",
+            "action": "Request processing complete",
+            "nextStep": 0
+          }
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "HTTP Client",
+      "Spring Web Framework",
+      "Multi-tenant Application"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Successful Tenant Context Extraction",
+        "preconditions": [
+          "HTTP request contains Xtenant header",
+          "ThreadTenantStorage is available"
+        ],
+        "steps": [
+          "Client sends request with Xtenant header",
+          "Interceptor extracts tenant ID from header",
+          "Tenant ID stored in thread-local storage",
+          "Request processed with tenant context",
+          "Response returned to client",
+          "Tenant context cleared from storage"
+        ],
+        "postconditions": [
+          "Tenant context isolated for request",
+          "ThreadTenantStorage cleaned up"
+        ]
+      },
+      {
+        "name": "Request Without Tenant Header",
+        "preconditions": [
+          "HTTP request missing Xtenant header"
+        ],
+        "steps": [
+          "Client sends request without Xtenant header",
+          "Interceptor attempts to extract tenant ID",
+          "Null or empty tenant ID stored",
+          "Request processed",
+          "Tenant context cleared"
+        ],
+        "postconditions": [
+          "Request may fail or use default tenant"
+        ]
+      },
+      {
+        "name": "Exception During Request Processing",
+        "preconditions": [
+          "Request processing throws exception"
+        ],
+        "steps": [
+          "Exception occurs during request handling",
+          "afterCompletionWebRequest invoked with exception",
+          "ThreadTenantStorage cleared regardless of exception",
+          "Exception propagated"
+        ],
+        "postconditions": [
+          "Tenant context cleaned up",
+          "No thread-local storage leaks"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant Client
+    participant AuthorService
+    participant AuthorRepository
+    participant Database
+    participant Author
+
+    Client->>+AuthorService: insertAuthor(author)
+    Note right of Client: Client calls AuthorService.insert with Author object
+
+    AuthorService->>+AuthorRepository: saveAuthor(author)
+    Note right of AuthorService: AuthorService delegates to repository.save
+
+    AuthorRepository->>+Database: INSERT INTO authors VALUES ...
+    Note right of AuthorRepository: Repository persists author to database
+
+    Database->>+Author: return persisted Author with ID
+    Note right of Database: Author object with generated ID
+
+    Author-->>-Database: Author (with ID)
+
+    Database-->>-AuthorRepository: Author (with ID)
+    Note right of AuthorRepository: Persisted Author returned to repository
+
+    AuthorRepository-->>-AuthorService: Author (with ID)
+    Note right of AuthorService: Persisted Author returned to service
+
+    AuthorService-->>-Client: Author (with ID)
+    Note right of Client: Persisted Author returned to client

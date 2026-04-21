@@ -1,0 +1,350 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyresourcesAuthorResource.java",
+    "className": "AuthorResource",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.resources",
+    "responsibility": "REST API endpoint controller for managing Author entities with CRUD operations and post retrieval",
+    "interactions": [
+      "Receives HTTP requests from clients",
+      "Delegates business logic to AuthorService",
+      "Returns HTTP responses with Author and Post data",
+      "Manages URI construction for created resources"
+    ],
+    "businessKeywords": [
+      "Author management",
+      "Post retrieval",
+      "Multi-tenancy",
+      "PostgreSQL persistence"
+    ],
+    "technicalCategory": "REST Controller",
+    "dataPatterns": [
+      "Request-Response",
+      "CRUD operations",
+      "Collection handling"
+    ],
+    "componentRelationships": [
+      "AuthorResource -> AuthorService",
+      "AuthorResource -> Author domain model",
+      "AuthorResource -> Post domain model"
+    ]
+  },
+  "dependencies": {
+    "consumers": [
+      "HTTP clients",
+      "Frontend applications"
+    ],
+    "providers": [
+      "AuthorService",
+      "ServletUriComponentsBuilder",
+      "Spring Framework",
+      "PostgreSQL database"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot application",
+    "resourceRequirements": [
+      "Spring Web MVC",
+      "PostgreSQL database connection",
+      "Servlet container"
+    ],
+    "scalingNeeds": "Horizontal scaling with load balancing, database connection pooling"
+  },
+  "security": {
+    "dataClassification": "Author and Post data",
+    "authenticationNeeds": "Not explicitly defined in controller",
+    "authorizationPatterns": "Not explicitly defined in controller"
+  },
+  "performance": {
+    "criticalOperations": [
+      "findAll",
+      "findById",
+      "findPosts"
+    ],
+    "dataVolume": "List of Authors and Posts",
+    "concurrencyModel": "Multi-threaded HTTP request handling"
+  },
+  "classDetails": {
+    "name": "AuthorResource",
+    "package": "br.com.fullcustom.postgresmultitenancy.resources",
+    "type": "Class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "service",
+        "type": "AuthorService",
+        "visibility": "private",
+        "annotations": [
+          "Autowired"
+        ]
+      }
+    ],
+    "methods": [
+      {
+        "name": "findAll",
+        "returnType": "ResponseEntity<List<Author>>",
+        "visibility": "public",
+        "parameters": [],
+        "annotations": [
+          "GetMapping"
+        ],
+        "description": "Retrieve all authors"
+      },
+      {
+        "name": "findById",
+        "returnType": "ResponseEntity<Author>",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long",
+            "annotations": [
+              "PathVariable"
+            ]
+          }
+        ],
+        "annotations": [
+          "GetMapping",
+          "path: /{id}"
+        ],
+        "description": "Retrieve author by ID"
+      },
+      {
+        "name": "insert",
+        "returnType": "ResponseEntity<Void>",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "obj",
+            "type": "Author",
+            "annotations": [
+              "RequestBody"
+            ]
+          }
+        ],
+        "annotations": [
+          "PostMapping"
+        ],
+        "description": "Create new author"
+      },
+      {
+        "name": "delete",
+        "returnType": "ResponseEntity<Void>",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long",
+            "annotations": [
+              "PathVariable"
+            ]
+          }
+        ],
+        "annotations": [
+          "DeleteMapping",
+          "path: /{id}"
+        ],
+        "description": "Delete author by ID"
+      },
+      {
+        "name": "update",
+        "returnType": "ResponseEntity<Void>",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "obj",
+            "type": "Author",
+            "annotations": [
+              "RequestBody"
+            ]
+          },
+          {
+            "name": "id",
+            "type": "Long",
+            "annotations": [
+              "PathVariable"
+            ]
+          }
+        ],
+        "annotations": [
+          "PutMapping",
+          "path: /{id}"
+        ],
+        "description": "Update author by ID"
+      },
+      {
+        "name": "findPosts",
+        "returnType": "ResponseEntity<List<Post>>",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "Long",
+            "annotations": [
+              "PathVariable"
+            ]
+          }
+        ],
+        "annotations": [
+          "GetMapping",
+          "path: /{id}/posts"
+        ],
+        "description": "Retrieve all posts for an author"
+      }
+    ],
+    "relationships": [
+      "uses AuthorService",
+      "manages Author entities",
+      "manages Post entities"
+    ],
+    "interfaces": [],
+    "superclass": ""
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Get All Authors",
+        "steps": [
+          "Client sends GET /authors",
+          "AuthorResource.findAll() invoked",
+          "AuthorService.findAll() called",
+          "List<Author> returned from service",
+          "ResponseEntity with 200 OK returned to client"
+        ]
+      },
+      {
+        "name": "Get Author by ID",
+        "steps": [
+          "Client sends GET /authors/{id}",
+          "AuthorResource.findById(id) invoked",
+          "AuthorService.findById(id) called",
+          "Author object returned from service",
+          "ResponseEntity with 200 OK returned to client"
+        ]
+      },
+      {
+        "name": "Create Author",
+        "steps": [
+          "Client sends POST /authors with Author body",
+          "AuthorResource.insert(obj) invoked",
+          "AuthorService.insert(obj) called",
+          "Author persisted to database",
+          "URI constructed using ServletUriComponentsBuilder",
+          "ResponseEntity with 201 Created and Location header returned"
+        ]
+      },
+      {
+        "name": "Update Author",
+        "steps": [
+          "Client sends PUT /authors/{id} with Author body",
+          "AuthorResource.update(obj, id) invoked",
+          "Author ID set from path variable",
+          "AuthorService.update(obj) called",
+          "Author updated in database",
+          "ResponseEntity with 204 No Content returned"
+        ]
+      },
+      {
+        "name": "Delete Author",
+        "steps": [
+          "Client sends DELETE /authors/{id}",
+          "AuthorResource.delete(id) invoked",
+          "AuthorService.delete(id) called",
+          "Author deleted from database",
+          "ResponseEntity with 204 No Content returned"
+        ]
+      },
+      {
+        "name": "Get Author Posts",
+        "steps": [
+          "Client sends GET /authors/{id}/posts",
+          "AuthorResource.findPosts(id) invoked",
+          "AuthorService.findById(id) called",
+          "Author object retrieved",
+          "Author.getPosts() called",
+          "List<Post> returned to client with 200 OK"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "HTTP Client",
+      "Frontend Application",
+      "API Consumer"
+    ],
+    "mainScenarios": [
+      {
+        "useCase": "List All Authors",
+        "actor": "API Consumer",
+        "preconditions": "AuthorService is available",
+        "mainFlow": [
+          "Actor requests GET /authors",
+          "System retrieves all authors from database",
+          "System returns list of authors with 200 OK"
+        ],
+        "postconditions": "List of authors displayed to actor",
+        "businessRules": "No filtering or pagination specified"
+      },
+      {
+        "useCase": "Retrieve Author Details",
+        "actor": "API Consumer",
+        "preconditions": "Author with given ID exists",
+        "mainFlow": [
+          "Actor requests GET /authors/{id}",
+          "System retrieves author by ID",
+          "System returns author details with 200 OK"
+        ],
+        "postconditions": "Author details displayed to actor",
+        "businessRules": "Author must exist in database"
+      },
+      {
+        "useCase": "Create New Author",
+        "actor": "API Consumer",
+        "preconditions": "Valid Author data provided",
+        "mainFlow": [
+          "Actor sends POST /authors with Author data",
+          "System validates and persists author",
+          "System returns 201 Created with Location header"
+        ],
+        "postconditions": "New author created in database",
+        "businessRules": "Author data must be valid"
+      },
+      {
+        "useCase": "Update Author",
+        "actor": "API Consumer",
+        "preconditions": "Author with given ID exists",
+        "mainFlow": [
+          "Actor sends PUT /authors/{id} with updated data",
+          "System updates author in database",
+          "System returns 204 No Content"
+        ],
+        "postconditions": "Author record updated in database",
+        "businessRules": "Author must exist before update"
+      },
+      {
+        "useCase": "Delete Author",
+        "actor": "API Consumer",
+        "preconditions": "Author with given ID exists",
+        "mainFlow": [
+          "Actor sends DELETE /authors/{id}",
+          "System deletes author from database",
+          "System returns 204 No Content"
+        ],
+        "postconditions": "Author record removed from database",
+        "businessRules": "Author must exist before deletion"
+      },
+      {
+        "useCase": "Retrieve Author Posts",
+        "actor": "API Consumer",
+        "preconditions": "Author with given ID exists",
+        "mainFlow": [
+          "Actor requests GET /authors/{id}/posts",
+          "System retrieves author and associated posts",
+          "System returns list of posts with 200 OK"
+        ],
+        "postconditions": "Author posts displayed to actor",
+        "businessRules": "Author must exist and have posts"
+      }
+    ]
+  }
+}

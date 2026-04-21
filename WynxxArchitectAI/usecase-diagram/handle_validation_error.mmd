@@ -1,0 +1,151 @@
+stateDiagram-v2
+    [*] --> ApplicationStartup
+    
+    state ApplicationStartup {
+        [*] --> LoadConfiguration
+        LoadConfiguration --> InitializeDatasources
+        InitializeDatasources --> ConfigureDataSources
+        ConfigureDataSources --> ExecuteMigrations
+        ExecuteMigrations --> InitializeDatabase
+        InitializeDatabase --> [*]
+    }
+    
+    ApplicationStartup --> RequestProcessing
+    
+    state RequestProcessing {
+        [*] --> ReceiveRequest
+        ReceiveRequest --> ExtractTenantContext
+        ExtractTenantContext --> EstablishTenantContext
+        EstablishTenantContext --> RouteRequest
+        RouteRequest --> ProcessRequest
+        ProcessRequest --> CleanupTenantContext
+        CleanupTenantContext --> [*]
+    }
+    
+    state ProcessRequest {
+        [*] --> APIEndpoint
+        
+        state APIEndpoint {
+            [*] --> ListAuthorsAPI
+            ListAuthorsAPI --> RetrieveAuthorDetailsAPI
+            RetrieveAuthorDetailsAPI --> CreateAuthorAPI
+            CreateAuthorAPI --> UpdateAuthorAPI
+            UpdateAuthorAPI --> DeleteAuthorAPI
+            DeleteAuthorAPI --> RetrieveAllPostsAPI
+            RetrieveAllPostsAPI --> RetrieveSinglePostAPI
+            RetrieveSinglePostAPI --> RetrieveAuthorPostsAPI
+            RetrieveAuthorPostsAPI --> [*]
+        }
+        
+        APIEndpoint --> DataManagement
+        
+        state DataManagement {
+            [*] --> ManageAuthors
+            ManageAuthors --> ManagePosts
+            
+            state ManageAuthors {
+                [*] --> CreateAuthor
+                CreateAuthor --> RetrieveAuthor
+                RetrieveAuthor --> UpdateAuthor
+                UpdateAuthor --> DeleteAuthor
+                DeleteAuthor --> ListAuthors
+                ListAuthors --> [*]
+            }
+            
+            state ManagePosts {
+                [*] --> CreatePost
+                CreatePost --> RetrievePost
+                RetrievePost --> UpdatePost
+                UpdatePost --> DeletePost
+                DeletePost --> [*]
+            }
+            
+            ManageAuthors --> [*]
+        }
+        
+        DataManagement --> MultiTenantRouting
+        
+        state MultiTenantRouting {
+            [*] --> RouteConnection
+            RouteConnection --> RetrieveTenantDatasource
+            RetrieveTenantDatasource --> ExecuteQuery
+            ExecuteQuery --> [*]
+        }
+        
+        MultiTenantRouting --> ErrorHandling
+        
+        state ErrorHandling {
+            [*] --> CheckException
+            CheckException --> HandleNotFound: ObjectNotFoundException
+            CheckException --> HandleValidationError: ValidationException
+            HandleNotFound --> CreateErrorResponse
+            HandleValidationError --> CreateErrorResponse
+            CreateErrorResponse --> [*]
+        }
+        
+        [*] --> APIEndpoint
+    }
+    
+    ProcessRequest --> ResponseSerialization
+    
+    state ResponseSerialization {
+        [*] --> SerializeData
+        SerializeData --> FormatResponse
+        FormatResponse --> ReturnToClient
+        ReturnToClient --> [*]
+    }
+    
+    ResponseSerialization --> [*]
+    
+    note right of ApplicationStartup
+        System initialization phase:
+        - Load Spring Boot configuration
+        - Initialize multitenant datasources
+        - Configure database routing
+        - Execute Flyway migrations
+        - Populate sample data
+    end note
+    
+    note right of RequestProcessing
+        Request processing phase:
+        - Extract X-tenant header
+        - Establish ThreadLocal tenant context
+        - Route to appropriate datasource
+        - Process business logic
+        - Cleanup ThreadLocal storage
+    end note
+    
+    note right of ManageAuthors
+        Author CRUD operations:
+        - Create: Validate email uniqueness per tenant
+        - Retrieve: Load author with lazy-loaded posts
+        - Update: Maintain email uniqueness
+        - Delete: Cascade delete all related posts
+        - List: Return tenant-specific authors
+    end note
+    
+    note right of ManagePosts
+        Post CRUD operations:
+        - Create: Auto-set date to current GMT
+        - Retrieve: Load with author details
+        - Update: Only owner can modify
+        - Delete: Only owner can delete
+        - Must be associated with valid author
+    end note
+    
+    note right of MultiTenantRouting
+        Tenant isolation enforcement:
+        - Retrieve tenant ID from ThreadLocal
+        - Select appropriate datasource
+        - Route all queries to tenant schema
+        - Maintain data isolation
+        - Prevent cross-tenant access
+    end note
+    
+    note right of ErrorHandling
+        Exception handling:
+        - ObjectNotFoundException → HTTP 404
+        - ValidationException → HTTP 400
+        - Include timestamp, status, message, URI
+        - Log errors for monitoring
+    end note

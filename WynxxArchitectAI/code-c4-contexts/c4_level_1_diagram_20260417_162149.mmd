@@ -1,0 +1,16 @@
+C4Context
+    title System Context diagram for PostgreSQL Spring Multitenancy
+
+    Person(user, "API Client", "External system or user consuming the REST API endpoints for Post and Author management")
+    Person(admin, "System Administrator", "Administrator managing the multitenancy configuration and system deployment")
+    
+    System(postgresmultitenancy, "PostgreSQL Spring Multitenancy System", "Core microservice providing REST API for managing Posts and Authors with multitenancy support, exception handling, and timezone-aware operations")
+    
+    System_Ext(postgresqldb, "PostgreSQL Database", "Relational database storing Post and Author entities with multitenancy isolation")
+    System_Ext(springframework, "Spring Framework", "Dependency injection and application framework providing core infrastructure")
+    
+    Rel(user, postgresmultitenancy, "Makes HTTP requests to REST API endpoints", "HTTP/REST")
+    Rel(admin, postgresmultitenancy, "Manages multitenancy configuration and deployment", "HTTP/REST")
+    Rel(postgresmultitenancy, postgresqldb, "Reads and writes Post and Author data", "JDBC/JPA")
+    Rel(postgresmultitenancy, springframework, "Uses Spring Framework for dependency injection and core services", "Spring Framework")
+    

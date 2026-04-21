@@ -1,0 +1,44 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant Author
+    participant PostgreSQL
+
+    Client->>AuthorResource: GET /authors/{id}/posts
+    Note over Client,AuthorResource: Client sends GET /authors/{id}/posts
+
+    activate AuthorResource
+    AuthorResource->>AuthorResource: findPosts(id)
+    Note over AuthorResource: AuthorResource.findPosts(id) invoked
+
+    AuthorResource->>AuthorService: findById(id)
+    Note over AuthorResource,AuthorService: AuthorService.findById(id) called
+
+    activate AuthorService
+    AuthorService->>PostgreSQL: SELECT * FROM author WHERE id = ?
+    
+    activate PostgreSQL
+    PostgreSQL-->>AuthorService: return author row
+    deactivate PostgreSQL
+
+    AuthorService-->>AuthorResource: return author
+    Note over AuthorService,AuthorResource: Author object retrieved
+    deactivate AuthorService
+
+    AuthorResource->>Author: getPosts()
+    Note over AuthorResource,Author: Author.getPosts called
+
+    activate Author
+    Author->>PostgreSQL: SELECT * FROM post WHERE author_id = ?
+    Note over Author,PostgreSQL: Lazy load posts collection
+
+    activate PostgreSQL
+    PostgreSQL-->>Author: return post rows
+    Note over PostgreSQL,Author: Collection of Post objects
+    deactivate PostgreSQL
+    deactivate Author
+
+    AuthorResource-->>Client: ResponseEntity.ok(posts)
+    Note over AuthorResource,Client: List[Post] returned to client with 200 OK
+    deactivate AuthorResource

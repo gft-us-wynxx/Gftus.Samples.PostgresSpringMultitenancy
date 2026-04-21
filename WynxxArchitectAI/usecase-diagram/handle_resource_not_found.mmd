@@ -1,0 +1,173 @@
+stateDiagram-v2
+    [*] --> ApplicationStartup
+    
+    state ApplicationStartup {
+        [*] --> LoadConfiguration
+        LoadConfiguration --> InitializeDatasources
+        InitializeDatasources --> ConfigureDataSources
+        ConfigureDataSources --> ExecuteMigrations
+        ExecuteMigrations --> InitializeDatabase
+        InitializeDatabase --> [*]
+    }
+    
+    ApplicationStartup --> RequestProcessing
+    
+    state RequestProcessing {
+        [*] --> ReceiveHTTPRequest
+        ReceiveHTTPRequest --> ExtractTenantContext
+        ExtractTenantContext --> EstablishTenantContext
+        EstablishTenantContext --> ProcessRequest
+        ProcessRequest --> AccessTenantContext
+        AccessTenantContext --> CleanupTenantContext
+        CleanupTenantContext --> [*]
+    }
+    
+    RequestProcessing --> MultiTenantRouting
+    
+    state MultiTenantRouting {
+        [*] --> DetermineCurrentTenant
+        DetermineCurrentTenant --> RetrieveTenantDatasource
+        RetrieveTenantDatasource --> RouteConnection
+        RouteConnection --> [*]
+    }
+    
+    MultiTenantRouting --> RESTAPIProcessing
+    
+    state RESTAPIProcessing {
+        [*] --> RoutingDecision
+        
+        state RoutingDecision {
+            [*] --> CheckEndpoint
+            CheckEndpoint --> AuthorEndpoint: /authors
+            CheckEndpoint --> PostEndpoint: /posts
+        }
+        
+        state AuthorEndpoint {
+            [*] --> AuthorOperation
+            AuthorOperation --> ListAuthors: GET /authors
+            AuthorOperation --> GetAuthorDetails: GET /authors/{id}
+            AuthorOperation --> CreateAuthor: POST /authors
+            AuthorOperation --> UpdateAuthor: PUT /authors/{id}
+            AuthorOperation --> DeleteAuthor: DELETE /authors/{id}
+            AuthorOperation --> GetAuthorPosts: GET /authors/{id}/posts
+        }
+        
+        state PostEndpoint {
+            [*] --> PostOperation
+            PostOperation --> ListPosts: GET /posts
+            PostOperation --> GetPostDetails: GET /posts/{id}
+            PostOperation --> CreatePost: POST /posts
+            PostOperation --> UpdatePost: PUT /posts/{id}
+            PostOperation --> DeletePost: DELETE /posts/{id}
+        }
+        
+        ListAuthors --> ManageAuthors
+        GetAuthorDetails --> ManageAuthors
+        CreateAuthor --> ManageAuthors
+        UpdateAuthor --> ManageAuthors
+        DeleteAuthor --> ManageAuthors
+        GetAuthorPosts --> ManageAuthors
+        
+        ListPosts --> ManagePosts
+        GetPostDetails --> ManagePosts
+        CreatePost --> ManagePosts
+        UpdatePost --> ManagePosts
+        DeletePost --> ManagePosts
+    }
+    
+    state ManageAuthors {
+        [*] --> AuthorDatabaseOperation
+        AuthorDatabaseOperation --> ValidateAuthorData
+        ValidateAuthorData --> ExecuteAuthorQuery
+        ExecuteAuthorQuery --> SerializeAuthorResponse
+        SerializeAuthorResponse --> [*]
+    }
+    
+    state ManagePosts {
+        [*] --> PostDatabaseOperation
+        PostDatabaseOperation --> ValidatePostData
+        ValidatePostData --> ExecutePostQuery
+        ExecutePostQuery --> SerializePostResponse
+        SerializePostResponse --> [*]
+    }
+    
+    ManageAuthors --> ErrorHandling
+    ManagePosts --> ErrorHandling
+    
+    state ErrorHandling {
+        [*] --> CheckException
+        CheckException --> NotFoundError: ObjectNotFoundException
+        CheckException --> ValidationError: ValidationException
+        CheckException --> OtherError: Other Exceptions
+        
+        NotFoundError --> CreateErrorResponse
+        ValidationError --> CreateErrorResponse
+        OtherError --> CreateErrorResponse
+        
+        CreateErrorResponse --> FormatHTTPError
+        FormatHTTPError --> ReturnErrorToClient
+        ReturnErrorToClient --> [*]
+    }
+    
+    ErrorHandling --> ResponseReturn
+    RESTAPIProcessing --> ResponseReturn
+    
+    state ResponseReturn {
+        [*] --> SerializeResponse
+        SerializeResponse --> SetHTTPStatus
+        SetHTTPStatus --> ReturnToClient
+        ReturnToClient --> [*]
+    }
+    
+    ResponseReturn --> [*]
+    
+    note right of ApplicationStartup
+        System initialization phase:
+        - Load Spring Boot configuration
+        - Initialize multitenant datasources
+        - Configure database routing
+        - Execute Flyway migrations
+        - Populate sample data
+    end note
+    
+    note right of RequestProcessing
+        HTTP request interception:
+        - Extract X-tenant header
+        - Establish threadlocal context
+        - Process request with tenant isolation
+        - Cleanup threadlocal storage
+    end note
+    
+    note right of MultiTenantRouting
+        Tenant context management:
+        - Determine current tenant ID
+        - Retrieve tenant-specific datasource
+        - Route database connection
+        - Maintain data isolation
+    end note
+    
+    note right of ManageAuthors
+        Author CRUD operations:
+        - Create: POST with name, email
+        - Retrieve: GET by ID
+        - Update: PUT with changes
+        - Delete: CASCADE to posts
+        - List: All authors for tenant
+    end note
+    
+    note right of ManagePosts
+        Post CRUD operations:
+        - Create: POST with title, body
+        - Retrieve: GET by ID
+        - Update: PUT with changes
+        - Delete: Remove from database
+        - List: All posts for tenant
+    end note
+    
+    note right of ErrorHandling
+        Exception handling:
+        - Intercept ObjectNotFoundException
+        - Create StandardError response
+        - Include timestamp, status, message, URI
+        - Return HTTP 404 for not found
+    end note

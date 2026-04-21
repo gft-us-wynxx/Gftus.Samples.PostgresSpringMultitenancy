@@ -1,0 +1,149 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyresourcesexceptionsResourceExceptionHandler.java",
+    "className": "ResourceExceptionHandler",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.resources.exceptions",
+    "responsibility": "Global exception handling for REST API endpoints, specifically handling ObjectNotFoundException and converting them to standardized HTTP error responses",
+    "interactions": [
+      "Intercepts ObjectNotFoundException from service layer",
+      "Converts exceptions to StandardError response objects",
+      "Returns HTTP 404 status with error details"
+    ],
+    "businessKeywords": [
+      "exception handling",
+      "error response",
+      "not found",
+      "REST API"
+    ],
+    "technicalCategory": "Exception Handler",
+    "dataPatterns": [
+      "Exception to Response transformation",
+      "HTTP status mapping",
+      "Error standardization"
+    ],
+    "componentRelationships": [
+      "Handles exceptions from service layer",
+      "Provides responses to API consumers",
+      "Depends on StandardError model"
+    ]
+  },
+  "dependencies": {
+    "consumers": [
+      "Spring Web framework",
+      "HTTP clients calling REST endpoints"
+    ],
+    "providers": [
+      "br.com.fullcustom.postgresmultitenancy.services.exceptions.ObjectNotFoundException",
+      "org.springframework.web.bind.annotation.ControllerAdvice",
+      "org.springframework.web.bind.annotation.ExceptionHandler",
+      "org.springframework.http.ResponseEntity",
+      "org.springframework.http.HttpStatus",
+      "javax.servlet.http.HttpServletRequest"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot application",
+    "resourceRequirements": [
+      "Spring Framework runtime",
+      "Servlet container",
+      "HTTP server"
+    ],
+    "scalingNeeds": "Stateless handler, horizontally scalable"
+  },
+  "security": {
+    "dataClassification": "Error information - potentially sensitive",
+    "authenticationNeeds": "Not directly handled by this component",
+    "authorizationPatterns": "Global exception handling applies to all endpoints"
+  },
+  "performance": {
+    "criticalOperations": [
+      "Exception handling and response generation"
+    ],
+    "dataVolume": "Low - single exception object processing",
+    "concurrencyModel": "Thread-safe, stateless handler"
+  },
+  "classDetails": {
+    "name": "ResourceExceptionHandler",
+    "package": "br.com.fullcustom.postgresmultitenancy.resources.exceptions",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [],
+    "methods": [
+      {
+        "name": "objectNotFound",
+        "visibility": "public",
+        "returnType": "ResponseEntity<StandardError>",
+        "parameters": [
+          {
+            "name": "e",
+            "type": "ObjectNotFoundException"
+          },
+          {
+            "name": "request",
+            "type": "HttpServletRequest"
+          }
+        ],
+        "annotations": [
+          "ExceptionHandler"
+        ],
+        "description": "Handles ObjectNotFoundException and returns standardized error response"
+      }
+    ],
+    "relationships": [
+      "Handles: ObjectNotFoundException",
+      "Returns: ResponseEntity<StandardError>"
+    ],
+    "interfaces": [],
+    "superclass": "",
+    "annotations": [
+      "ControllerAdvice"
+    ]
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Exception Handling Flow",
+        "steps": [
+          "Exception ObjectNotFoundException is thrown from service layer",
+          "Spring framework intercepts exception",
+          "ControllerAdvice routes to objectNotFound method",
+          "Method extracts exception details and request URI",
+          "StandardError object is created with timestamp, status code, message, and request URI",
+          "ResponseEntity with HTTP 404 status is returned",
+          "Response is serialized and sent to client"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "REST API Client",
+      "Spring Framework",
+      "Service Layer"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Handle Not Found Exception",
+        "preconditions": [
+          "ObjectNotFoundException is thrown from service layer",
+          "HTTP request is in progress"
+        ],
+        "steps": [
+          "Service layer throws ObjectNotFoundException",
+          "Exception handler intercepts the exception",
+          "Handler creates StandardError response with 404 status",
+          "Response is returned to client"
+        ],
+        "postconditions": [
+          "Client receives HTTP 404 response",
+          "Error details are included in response body",
+          "Request URI is logged in error response"
+        ],
+        "businessRules": [
+          "All ObjectNotFoundException instances must return HTTP 404",
+          "Error responses must include timestamp, status code, message, and request URI"
+        ]
+      }
+    ]
+  }
+}

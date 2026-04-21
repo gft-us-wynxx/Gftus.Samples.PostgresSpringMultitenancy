@@ -1,0 +1,165 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyresourcesutilURL.java",
+    "className": "URL",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.resources.util",
+    "responsibility": "Utility class for URL parameter decoding and date string conversion with timezone support",
+    "interactions": [
+      "URLDecoder for URL parameter decoding",
+      "SimpleDateFormat for date parsing",
+      "TimeZone for GMT timezone handling"
+    ],
+    "businessKeywords": [
+      "URL decoding",
+      "date conversion",
+      "parameter parsing",
+      "timezone handling"
+    ],
+    "technicalCategory": "Utility",
+    "dataPatterns": [
+      "String encoding/decoding",
+      "Date parsing and formatting",
+      "Exception handling with fallback values"
+    ],
+    "componentRelationships": [
+      "Provides utility functions to resource layer",
+      "Supports multi-tenancy date handling"
+    ],
+    "dependencies": {
+      "consumers": [
+        "br.com.fullcustom.postgresmultitenancy.resources"
+      ],
+      "providers": [
+        "java.net.URLDecoder",
+        "java.text.SimpleDateFormat",
+        "java.util.TimeZone"
+      ]
+    },
+    "infrastructure": {
+      "deploymentType": "Library component",
+      "resourceRequirements": "Minimal - stateless utility",
+      "scalingNeeds": "None - no state management"
+    },
+    "security": {
+      "dataClassification": "Low - utility functions",
+      "authenticationNeeds": false,
+      "authorizationPatterns": []
+    },
+    "performance": {
+      "criticalOperations": [
+        "URL parameter decoding",
+        "Date string parsing"
+      ],
+      "dataVolume": "Per-request basis",
+      "concurrencyModel": "Thread-safe - stateless operations"
+    }
+  },
+  "classDetails": {
+    "name": "URL",
+    "package": "br.com.fullcustom.postgresmultitenancy.resources.util",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [],
+    "methods": [
+      {
+        "name": "decodeParamString",
+        "visibility": "public",
+        "isStatic": true,
+        "returnType": "String",
+        "parameters": [
+          {
+            "name": "text",
+            "type": "String"
+          }
+        ],
+        "exceptions": [
+          "UnsupportedEncodingException"
+        ],
+        "description": "Decodes URL-encoded parameter string using UTF-8 encoding"
+      },
+      {
+        "name": "convertDateString",
+        "visibility": "public",
+        "isStatic": true,
+        "returnType": "Date",
+        "parameters": [
+          {
+            "name": "textDate",
+            "type": "String"
+          },
+          {
+            "name": "defaultValue",
+            "type": "Date"
+          }
+        ],
+        "exceptions": [
+          "ParseException"
+        ],
+        "description": "Converts date string in yyyyMMdd format to Date object using GMT timezone"
+      }
+    ],
+    "relationships": [],
+    "interfaces": [],
+    "superclass": "java.lang.Object"
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "URL Parameter Decoding Flow",
+        "steps": [
+          "Client calls decodeParamString with encoded text",
+          "Method invokes URLDecoder.decode with UTF-8 charset",
+          "Returns decoded string on success",
+          "Catches UnsupportedEncodingException and returns empty string"
+        ]
+      },
+      {
+        "name": "Date Conversion Flow",
+        "steps": [
+          "Client calls convertDateString with date string and default value",
+          "SimpleDateFormat created with yyyyMMdd pattern",
+          "TimeZone set to GMT",
+          "Attempts to parse text date string",
+          "Returns parsed Date on success",
+          "Catches ParseException and returns default value"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "REST Resource Handler",
+      "Request Parameter Processor",
+      "Date Formatter"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Decode URL Parameter",
+        "preconditions": "URL-encoded parameter string provided",
+        "steps": [
+          "Receive encoded parameter string",
+          "Decode using UTF-8 encoding",
+          "Return decoded string"
+        ],
+        "postconditions": "Decoded parameter string available for processing",
+        "alternativeFlows": [
+          "UnsupportedEncodingException occurs - return empty string"
+        ]
+      },
+      {
+        "name": "Convert Date String",
+        "preconditions": "Date string in yyyyMMdd format and default value provided",
+        "steps": [
+          "Receive date string and default value",
+          "Create SimpleDateFormat with GMT timezone",
+          "Parse date string",
+          "Return parsed Date object"
+        ],
+        "postconditions": "Date object available for business logic",
+        "alternativeFlows": [
+          "ParseException occurs - return provided default value"
+        ]
+      }
+    ]
+  }
+}

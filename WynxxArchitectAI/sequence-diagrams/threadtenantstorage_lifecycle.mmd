@@ -1,0 +1,58 @@
+sequenceDiagram
+    actor Client
+    participant ThreadTenantStorage
+    participant ThreadLocal
+    participant BusinessLogic
+
+    Note over Client,BusinessLogic: Set Tenant Context
+    Client->>ThreadTenantStorage: setTenantId(tenantId: "tenant123")
+    activate ThreadTenantStorage
+    Note right of ThreadTenantStorage: Print debug message: "Setting tenant ID tenant123"
+    ThreadTenantStorage->>ThreadLocal: set(tenantId: "tenant123")
+    activate ThreadLocal
+    Note right of ThreadLocal: Store in thread-specific map
+    deactivate ThreadLocal
+    ThreadTenantStorage-->>Client: Return
+    deactivate ThreadTenantStorage
+
+    Note over Client,BusinessLogic: Execute Business Logic
+    Client->>BusinessLogic: Execute business logic
+    activate BusinessLogic
+    
+    Note over BusinessLogic,ThreadTenantStorage: Get Tenant Context
+    BusinessLogic->>ThreadTenantStorage: getTenantId()
+    activate ThreadTenantStorage
+    Note right of ThreadTenantStorage: Print debug message: "Getting tenant ID"
+    ThreadTenantStorage->>ThreadLocal: get()
+    activate ThreadLocal
+    ThreadLocal-->>ThreadTenantStorage: Return stored value: "tenant123"
+    deactivate ThreadLocal
+    ThreadTenantStorage-->>BusinessLogic: Return tenant ID: "tenant123"
+    deactivate ThreadTenantStorage
+
+    Note right of BusinessLogic: Use tenant context for operations (tenantId: "tenant123")
+    BusinessLogic-->>Client: Return results
+    deactivate BusinessLogic
+
+    Note over Client,BusinessLogic: Clear Tenant Context
+    Client->>ThreadTenantStorage: clear()
+    activate ThreadTenantStorage
+    ThreadTenantStorage->>ThreadLocal: remove()
+    activate ThreadLocal
+    Note right of ThreadLocal: Remove from thread-specific map
+    deactivate ThreadLocal
+    ThreadTenantStorage-->>Client: Return
+    deactivate ThreadTenantStorage
+
+    alt getTenantId called without setTenantId
+        Note over BusinessLogic,ThreadLocal: ThreadLocal not initialized
+        BusinessLogic->>ThreadTenantStorage: getTenantId()
+        activate ThreadTenantStorage
+        ThreadTenantStorage->>ThreadLocal: get()
+        activate ThreadLocal
+        ThreadLocal-->>ThreadTenantStorage: Return: null
+        deactivate ThreadLocal
+        ThreadTenantStorage-->>BusinessLogic: Return null
+        deactivate ThreadTenantStorage
+        Note right of ThreadTenantStorage: Null returned to caller
+    end

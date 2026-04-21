@@ -1,0 +1,30 @@
+sequenceDiagram
+    actor Client
+    participant Post
+
+    Client->>Post: equals(otherPost)
+    activate Post
+    
+    alt same instance
+        Post->>Post: this == obj
+        Note right of Post: equals method compares object references
+        Post-->>Client: return true
+        Note right of Client: true if same instance
+    else obj is null
+        Post->>Post: obj == null
+        Note right of Post: If null comparison
+        Post-->>Client: return false
+        Note right of Client: false if null
+    else different class types
+        Post->>Post: getClass() != obj.getClass()
+        Note right of Post: If class types differ
+        Post-->>Client: return false
+        Note right of Client: false if different class types
+    else same class type
+        Post->>Post: this.id == other.id
+        Note right of Post: Compares ID field values
+        Post-->>Client: return equality result
+        Note right of Client: true if IDs match, false otherwise
+    end
+    
+    deactivate Post

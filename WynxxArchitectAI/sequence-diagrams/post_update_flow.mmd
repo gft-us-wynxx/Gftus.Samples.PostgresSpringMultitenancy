@@ -1,0 +1,54 @@
+sequenceDiagram
+    actor Client
+    participant PostResource
+    participant PostService
+    participant Post
+    participant JPA
+    participant PostgreSQL
+
+    Client->>PostResource: PUT /posts/{id} with Post body
+    activate PostResource
+    Note over PostResource: id: Long (post identifier) post: Post (updated Post object)
+    
+    PostResource->>PostService: updatePost()
+    activate PostService
+    Note over PostService: Client retrieves existing Post
+    
+    PostService->>JPA: findPost(Post.class, id)
+    activate JPA
+    
+    JPA->>PostgreSQL: SELECT * FROM post WHERE id = ?
+    activate PostgreSQL
+    
+    PostgreSQL-->>JPA: return post row
+    deactivate PostgreSQL
+    
+    JPA->>Post: instantiate Post
+    activate Post
+    deactivate Post
+    
+    deactivate JPA
+    
+    PostService->>Post: setTitle(newTitle), setContent(newContent)
+    activate Post
+    Note over Post: Client modifies Post properties via setters
+    deactivate Post
+    
+    JPA->>Post: detect changes via dirty checking
+    activate Post
+    Note over JPA: JPA detects changes and updates database
+    deactivate Post
+    
+    JPA->>PostgreSQL: UPDATE post SET title = ?, content = ? WHERE id = ?
+    activate PostgreSQL
+    Note over JPA: Changes are persisted to PostgreSQL
+    
+    PostgreSQL-->>JPA: return update count
+    deactivate PostgreSQL
+    
+    PostService-->>PostResource: return void
+    deactivate PostService
+    
+    PostResource-->>Client: ResponseEntity.noContent().build()
+    Note over PostResource: HTTP 204 No Content
+    deactivate PostResource

@@ -1,0 +1,241 @@
+classDiagram
+    namespace br_com_fullcustom_postgresmultitenancy {
+        class DemoApplication {
+            +main(String[] args) void$
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_config {
+        class Instantiation {
+            -userRepository: AuthorRepository
+            -postRepository: PostRepository
+            +run(String[] args) void
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_config_datasource {
+        class TenantRoutingDataSource {
+            #determineCurrentLookupKey() Object
+        }
+
+        class DataSourceConfiguration {
+            -dataSourceProperties: DataSourceProperties
+            +DataSourceConfiguration(DataSourceProperties)
+            +dataSource() DataSource
+            +migrate() void
+            -migrateDataSource(DataSource) void
+        }
+
+        class DataSourceProperties {
+            -datasources: Map~Object, Object~
+            +getDatasources() Map~Object, Object~
+            +setDatasources(Map~String, Map~String, String~~) void
+            +convert(Map~String, String~) DataSource
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_config_web {
+        class HeaderTenantInterceptor {
+            +TENANTHEADER: String$
+            +preHandle(WebRequest) void
+            +postHandle(WebRequest, ModelMap) void
+            +afterCompletion(WebRequest, Exception) void
+        }
+
+        class WebConfiguration {
+            -headerTenantInterceptor: HeaderTenantInterceptor
+            +WebConfiguration(HeaderTenantInterceptor)
+            +addInterceptors(InterceptorRegistry) void
+        }
+
+        class ThreadTenantStorage {
+            -currentTenant: ThreadLocal~String~$
+            +setTenantId(String) void$
+            +getTenantId() String$
+            +clear() void$
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_repository {
+        class AuthorRepository {
+            +save(Author) Author*
+            +findById(Long) Optional~Author~*
+            +findAll() List~Author~*
+            +delete(Author) void*
+        }
+
+        class PostRepository {
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_domain {
+        class Author {
+            -serialVersionUID: long$
+            -id: Long
+            -name: String
+            -email: String
+            -posts: List~Post~
+            +Author()
+            +Author(Long, String, String)
+            +getId() Long
+            +setId(Long) void
+            +getName() String
+            +setName(String) void
+            +getEmail() String
+            +setEmail(String) void
+            +id(Long) Author
+            +name(String) Author
+            +email(String) Author
+            +getPosts() List~Post~
+            +setPosts(List~Post~) void
+            +equals(Object) boolean
+            +hashCode() int
+            +toString() String
+        }
+
+        class Post {
+            -serialVersionUID: long$
+            -id: Long
+            -date: Date
+            -title: String
+            -body: String
+            -author: Author
+            +Post()
+            +Post(Long, Date, String, String, Author)
+            +getId() Long
+            +setId(Long) void
+            +getDate() Date
+            +setDate(Date) void
+            +getTitle() String
+            +setTitle(String) void
+            +getBody() String
+            +setBody(String) void
+            +getAuthor() Author
+            +setAuthor(Author) void
+            +hashCode() int
+            +equals(Object) boolean
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_resources {
+        class PostResource {
+            -service: PostService
+            +findById(Long) ResponseEntity~Post~
+            +findAll(String) ResponseEntity~List~Post~~
+        }
+
+        class AuthorResource {
+            -service: AuthorService
+            +findAll() ResponseEntity~List~Author~~
+            +findById(Long) ResponseEntity~Author~
+            +insert(Author) ResponseEntity~Void~
+            +delete(Long) ResponseEntity~Void~
+            +update(Author, Long) ResponseEntity~Void~
+            +findPosts(Long) ResponseEntity~List~Post~~
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_resources_exceptions {
+        class ResourceExceptionHandler {
+            +objectNotFound(ObjectNotFoundException, HttpServletRequest) ResponseEntity~StandardError~
+        }
+
+        class StandardError {
+            -serialVersionUID: long$
+            -timestamp: Long
+            -status: Integer
+            -error: String
+            -message: String
+            -path: String
+            +StandardError()
+            +StandardError(Long, Integer, String, String, String)
+            +getTimestamp() Long
+            +setTimestamp(Long) void
+            +getStatus() Integer
+            +setStatus(Integer) void
+            +getError() String
+            +setError(String) void
+            +getMessage() String
+            +setMessage(String) void
+            +getPath() String
+            +setPath(String) void
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_resources_util {
+        class URL {
+            +decodeParamString(String) String$
+            +convertDateString(String, Date) Date$
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_services {
+        class PostService {
+            -repo: PostRepository
+            +findById(Long) Post
+            +findAll() List~Post~
+        }
+
+        class AuthorService {
+            +repository: AuthorRepository
+            +findAll() List~Author~
+            +findById(Long) Author
+            +insert(Author) Author
+            +delete(Long) void
+            +update(Author) Author
+            -updateData(Author, Author) void
+        }
+    }
+
+    namespace br_com_fullcustom_postgresmultitenancy_services_exceptions {
+        class ObjectNotFoundException {
+            -serialVersionUID: long$
+            +ObjectNotFoundException(String)
+        }
+    }
+
+    %% All relationships outside namespace blocks
+    Instantiation --|> CommandLineRunner : implements
+    Instantiation --> AuthorRepository : depends on
+    Instantiation --> PostRepository : depends on
+
+    TenantRoutingDataSource --|> AbstractRoutingDataSource : extends
+
+    DataSourceConfiguration --> DataSourceProperties : dependency
+    DataSourceConfiguration --> TenantRoutingDataSource : creates
+    DataSourceConfiguration --> Flyway : uses
+
+    HeaderTenantInterceptor --|> WebRequestInterceptor : implements
+    HeaderTenantInterceptor --> ThreadTenantStorage : uses
+
+    WebConfiguration --|> WebMvcConfigurer : implements
+    WebConfiguration --> HeaderTenantInterceptor : dependency
+
+    AuthorRepository --|> JpaRepository : extends
+    PostRepository --|> JpaRepository : extends
+
+    Author --|> Serializable : implements
+    Post --|> Serializable : implements
+    Author "1" --> "*" Post : OneToMany
+    Post "*" --> "1" Author : ManyToOne
+
+    PostResource --> PostService : uses
+    PostResource --> Post : manages
+
+    AuthorResource --> AuthorService : uses
+    AuthorResource --> Author : manages
+    AuthorResource --> Post : manages
+
+    ResourceExceptionHandler --> StandardError : returns
+    StandardError --|> Serializable : implements
+
+    PostService --> PostRepository : uses
+    PostService --> Post : manages
+
+    AuthorService --> AuthorRepository : uses
+    AuthorService --> Author : manages
+
+    ObjectNotFoundException --|> RuntimeException : extends
+
+    PostRepository --> Post : manages
+    AuthorRepository --> Author : manages

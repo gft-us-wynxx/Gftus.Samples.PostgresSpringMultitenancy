@@ -1,0 +1,31 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant PostgreSQL
+
+    Client->>AuthorResource: GET /authors/{id}
+    Note over Client,AuthorResource: Client sends GET /authors/{id}
+    
+    activate AuthorResource
+    AuthorResource->>AuthorResource: findById(id)
+    Note over AuthorResource: AuthorResource.findById(id) invoked
+    
+    AuthorResource->>AuthorService: findById(id)
+    Note over AuthorResource,AuthorService: AuthorService.findById(id) called
+    
+    activate AuthorService
+    AuthorService->>PostgreSQL: SELECT * FROM author WHERE id = ?
+    
+    activate PostgreSQL
+    PostgreSQL-->>AuthorService: return author row
+    deactivate PostgreSQL
+    Note over AuthorService,PostgreSQL: Author object from database
+    
+    AuthorService-->>AuthorResource: return author
+    deactivate AuthorService
+    Note over AuthorService,AuthorResource: Author object returned from service
+    
+    AuthorResource-->>Client: ResponseEntity.ok(author)
+    deactivate AuthorResource
+    Note over AuthorResource,Client: ResponseEntity with 200 OK returned to client

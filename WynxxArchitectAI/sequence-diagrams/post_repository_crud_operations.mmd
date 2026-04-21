@@ -1,0 +1,86 @@
+sequenceDiagram
+    participant Service
+    participant PostRepository
+    participant JpaRepository
+    participant Hibernate
+    participant PostgreSQL
+
+    rect rgb(200, 220, 255)
+    Note over Service,PostgreSQL: CREATE POST
+    Service->>PostRepository: save(post)
+    activate PostRepository
+    PostRepository->>JpaRepository: save(post)
+    activate JpaRepository
+    JpaRepository->>Hibernate: persist(entity)
+    activate Hibernate
+    Hibernate->>PostgreSQL: INSERT INTO posts (title, content, authorid, tenantid) VALUES ...
+    activate PostgreSQL
+    PostgreSQL-->>Hibernate: ResultSet (Generated ID)
+    deactivate PostgreSQL
+    Hibernate-->>JpaRepository: Post (Persisted post with ID)
+    deactivate Hibernate
+    JpaRepository-->>PostRepository: Post (Post entity with generated ID)
+    deactivate JpaRepository
+    PostRepository-->>Service: Post (Persisted post)
+    deactivate PostRepository
+    end
+
+    rect rgb(200, 255, 220)
+    Note over Service,PostgreSQL: READ POST
+    Service->>PostRepository: findById(id)
+    activate PostRepository
+    PostRepository->>JpaRepository: findById(id)
+    activate JpaRepository
+    JpaRepository->>Hibernate: find(id)
+    activate Hibernate
+    Hibernate->>PostgreSQL: SELECT * FROM posts WHERE id = ? AND tenantid = ?
+    activate PostgreSQL
+    PostgreSQL-->>Hibernate: ResultSet (Post record)
+    deactivate PostgreSQL
+    Hibernate-->>JpaRepository: Post (Post entity)
+    deactivate Hibernate
+    JpaRepository-->>PostRepository: Post (Post entity)
+    deactivate JpaRepository
+    PostRepository-->>Service: Post (Post entity)
+    deactivate PostRepository
+    end
+
+    rect rgb(255, 240, 200)
+    Note over Service,PostgreSQL: UPDATE POST
+    Service->>PostRepository: save(post)
+    activate PostRepository
+    PostRepository->>JpaRepository: save(post)
+    activate JpaRepository
+    JpaRepository->>Hibernate: merge(entity)
+    activate Hibernate
+    Hibernate->>PostgreSQL: UPDATE posts SET title = ?, content = ? WHERE id = ? AND tenantid = ?
+    activate PostgreSQL
+    PostgreSQL-->>Hibernate: int (Number of rows updated)
+    deactivate PostgreSQL
+    Hibernate-->>JpaRepository: Post (Updated post)
+    deactivate Hibernate
+    JpaRepository-->>PostRepository: Post (Updated post)
+    deactivate JpaRepository
+    PostRepository-->>Service: Post (Updated post)
+    deactivate PostRepository
+    end
+
+    rect rgb(255, 220, 220)
+    Note over Service,PostgreSQL: DELETE POST
+    Service->>PostRepository: delete(post)
+    activate PostRepository
+    PostRepository->>JpaRepository: delete(post)
+    activate JpaRepository
+    JpaRepository->>Hibernate: remove(entity)
+    activate Hibernate
+    Hibernate->>PostgreSQL: DELETE FROM posts WHERE id = ? AND tenantid = ?
+    activate PostgreSQL
+    PostgreSQL-->>Hibernate: int (Number of rows deleted)
+    deactivate PostgreSQL
+    Hibernate-->>JpaRepository: Operation complete
+    deactivate Hibernate
+    JpaRepository-->>PostRepository: Operation complete
+    deactivate JpaRepository
+    PostRepository-->>Service: Operation complete
+    deactivate PostRepository
+    end

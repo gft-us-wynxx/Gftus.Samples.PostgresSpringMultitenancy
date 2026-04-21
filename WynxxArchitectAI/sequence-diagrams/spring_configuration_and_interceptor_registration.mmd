@@ -1,0 +1,31 @@
+sequenceDiagram
+    participant Spring as Spring
+    participant WebConfiguration as WebConfiguration
+    participant HeaderTenantInterceptor as HeaderTenantInterceptor
+    participant InterceptorRegistry as InterceptorRegistry
+    participant DispatcherServlet as DispatcherServlet
+
+    Spring->>WebConfiguration: Instantiate WebConfiguration
+    Note right of Spring: Spring creates WebConfiguration bean with HeaderTenantInterceptor dependency
+    activate WebConfiguration
+    WebConfiguration-->>Spring: Configuration bean instance
+    deactivate WebConfiguration
+
+    Spring->>WebConfiguration: addInterceptors(registry)
+    Note right of Spring: Spring calls addInterceptors during MVC configuration
+    activate WebConfiguration
+    WebConfiguration->>InterceptorRegistry: addInterceptor(headerTenantInterceptor)
+    Note right of WebConfiguration: Register HeaderTenantInterceptor with InterceptorRegistry
+    activate InterceptorRegistry
+    InterceptorRegistry->>InterceptorRegistry: Store interceptor in registry
+    Note right of InterceptorRegistry: Interceptor added to internal registry list
+    InterceptorRegistry-->>WebConfiguration: InterceptorRegistration
+    deactivate InterceptorRegistry
+    WebConfiguration-->>Spring: void
+    deactivate WebConfiguration
+
+    Spring->>DispatcherServlet: Initialize DispatcherServlet(interceptors)
+    Note right of Spring: Interceptor becomes active in request processing pipeline
+    activate DispatcherServlet
+    DispatcherServlet-->>Spring: void
+    deactivate DispatcherServlet

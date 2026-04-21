@@ -1,0 +1,221 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyconfigwebThreadTenantStorage.java",
+    "className": "ThreadTenantStorage",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.config.web",
+    "responsibility": "Manages tenant context storage and retrieval using ThreadLocal to maintain tenant isolation across concurrent requests in a multi-tenant application",
+    "interactions": [
+      "Stores current tenant identifier in thread-local storage",
+      "Retrieves tenant context for request processing",
+      "Clears tenant context after request completion"
+    ],
+    "businessKeywords": [
+      "multi-tenancy",
+      "tenant-isolation",
+      "context-management",
+      "request-scoping"
+    ],
+    "technicalCategory": "Configuration",
+    "dataPatterns": [
+      "ThreadLocal storage pattern",
+      "Context holder pattern",
+      "Thread-scoped data management"
+    ],
+    "componentRelationships": [
+      "Provides tenant context to service layer",
+      "Integrates with web request lifecycle",
+      "Supports PostgreSQL multi-tenancy configuration"
+    ],
+    "dependencies": {
+      "consumers": [
+        "Web controllers",
+        "Service layer components",
+        "Repository implementations"
+      ],
+      "providers": [
+        "Java ThreadLocal API",
+        "Spring Web framework"
+      ]
+    },
+    "infrastructure": {
+      "deploymentType": "Spring Boot application",
+      "resourceRequirements": "Minimal - in-memory thread-local storage",
+      "scalingNeeds": "Thread-safe by design, scales with application threads"
+    },
+    "security": {
+      "dataClassification": "Tenant identifier - sensitive",
+      "authenticationNeeds": "Requires authenticated user context",
+      "authorizationPatterns": [
+        "Tenant-based access control",
+        "Request isolation per tenant"
+      ]
+    },
+    "performance": {
+      "criticalOperations": [
+        "setTenantId - O(1) operation",
+        "getTenantId - O(1) operation",
+        "clear - O(1) operation"
+      ],
+      "dataVolume": "Single string per thread",
+      "concurrencyModel": "Thread-safe via ThreadLocal isolation"
+    }
+  },
+  "classDetails": {
+    "name": "ThreadTenantStorage",
+    "package": "br.com.fullcustom.postgresmultitenancy.config.web",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "currentTenant",
+        "type": "ThreadLocal<String>",
+        "visibility": "private",
+        "modifier": "static",
+        "initialization": "new ThreadLocal<>()",
+        "description": "Thread-local storage for current tenant identifier"
+      }
+    ],
+    "methods": [
+      {
+        "name": "setTenantId",
+        "visibility": "public",
+        "modifier": "static",
+        "returnType": "void",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "type": "String"
+          }
+        ],
+        "description": "Sets the tenant identifier for the current thread",
+        "operations": [
+          "Prints debug message",
+          "Stores tenant ID in ThreadLocal"
+        ]
+      },
+      {
+        "name": "getTenantId",
+        "visibility": "public",
+        "modifier": "static",
+        "returnType": "String",
+        "parameters": [],
+        "description": "Retrieves the tenant identifier for the current thread",
+        "operations": [
+          "Prints debug message",
+          "Returns tenant ID from ThreadLocal"
+        ]
+      },
+      {
+        "name": "clear",
+        "visibility": "public",
+        "modifier": "static",
+        "returnType": "void",
+        "parameters": [],
+        "description": "Clears the tenant identifier from the current thread",
+        "operations": [
+          "Removes tenant ID from ThreadLocal"
+        ]
+      }
+    ],
+    "relationships": [],
+    "interfaces": [],
+    "superclass": "java.lang.Object"
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Set Tenant Context",
+        "steps": [
+          "Client calls setTenantId(tenantId)",
+          "System prints debug message",
+          "ThreadLocal stores tenant identifier",
+          "Method returns"
+        ]
+      },
+      {
+        "name": "Get Tenant Context",
+        "steps": [
+          "Client calls getTenantId()",
+          "System prints debug message",
+          "ThreadLocal retrieves stored tenant identifier",
+          "Method returns tenant ID string"
+        ]
+      },
+      {
+        "name": "Clear Tenant Context",
+        "steps": [
+          "Client calls clear()",
+          "ThreadLocal removes stored tenant identifier",
+          "Method returns"
+        ]
+      },
+      {
+        "name": "Request Lifecycle",
+        "steps": [
+          "Request arrives with tenant information",
+          "setTenantId() called to establish context",
+          "Business logic executes with getTenantId() access",
+          "Response prepared",
+          "clear() called to cleanup thread-local storage"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "Web Request Handler",
+      "Service Layer Component",
+      "Repository Layer",
+      "Tenant Administrator"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Establish Tenant Context",
+        "preconditions": [
+          "HTTP request received",
+          "Tenant identifier available in request"
+        ],
+        "steps": [
+          "Extract tenant ID from request",
+          "Call setTenantId with extracted ID",
+          "Tenant context established for thread"
+        ],
+        "postconditions": [
+          "Current thread has tenant context",
+          "All downstream components can access tenant ID"
+        ]
+      },
+      {
+        "name": "Access Tenant Context",
+        "preconditions": [
+          "Tenant context previously established",
+          "Service component needs tenant information"
+        ],
+        "steps": [
+          "Service calls getTenantId()",
+          "Retrieve tenant ID from thread-local storage",
+          "Return tenant identifier"
+        ],
+        "postconditions": [
+          "Service receives correct tenant ID",
+          "Query or operation scoped to tenant"
+        ]
+      },
+      {
+        "name": "Cleanup Tenant Context",
+        "preconditions": [
+          "Request processing complete",
+          "Tenant context established"
+        ],
+        "steps": [
+          "Call clear() method",
+          "Remove tenant ID from thread-local storage"
+        ],
+        "postconditions": [
+          "Thread-local storage cleaned",
+          "Thread ready for reuse in thread pool"
+        ]
+      }
+    ]
+  }
+}

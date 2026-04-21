@@ -1,0 +1,176 @@
+{
+  "projectInfo": {
+    "groupId": "br.com.fullcustom",
+    "artifactId": "portgres-multitenancy",
+    "version": "0.0.1-SNAPSHOT",
+    "packaging": "",
+    "name": "demo",
+    "description": "Demo project for Spring Boot",
+    "url": "",
+    "inceptionYear": "",
+    "organization": {
+      "name": "",
+      "url": ""
+    },
+    "scm": {
+      "connection": "",
+      "developerConnection": "",
+      "url": "",
+      "tag": ""
+    },
+    "issueManagement": {
+      "system": "",
+      "url": ""
+    },
+    "ciManagement": {
+      "system": "",
+      "url": ""
+    },
+    "licenses": [],
+    "developers": []
+  },
+  "properties": [
+    {
+      "name": "java.version",
+      "value": "11"
+    }
+  ],
+  "dependencies": [
+    {
+      "groupId": "org.springframework.boot",
+      "artifactId": "spring-boot-starter",
+      "version": "",
+      "scope": "",
+      "optional": false,
+      "exclusions": []
+    },
+    {
+      "groupId": "org.springframework.boot",
+      "artifactId": "spring-boot-devtools",
+      "version": "",
+      "scope": "runtime",
+      "optional": true,
+      "exclusions": []
+    },
+    {
+      "groupId": "org.springframework.boot",
+      "artifactId": "spring-boot-starter-web",
+      "version": "",
+      "scope": "",
+      "optional": false,
+      "exclusions": []
+    },
+    {
+      "groupId": "org.springframework.boot",
+      "artifactId": "spring-boot-starter-data-jpa",
+      "version": "",
+      "scope": "",
+      "optional": false,
+      "exclusions": []
+    },
+    {
+      "groupId": "org.postgresql",
+      "artifactId": "postgresql",
+      "version": "",
+      "scope": "runtime",
+      "optional": false,
+      "exclusions": []
+    },
+    {
+      "groupId": "org.flywaydb",
+      "artifactId": "flyway-core",
+      "version": "",
+      "scope": "",
+      "optional": false,
+      "exclusions": []
+    },
+    {
+      "groupId": "org.springframework.boot",
+      "artifactId": "spring-boot-starter-test",
+      "version": "",
+      "scope": "test",
+      "optional": false,
+      "exclusions": [
+        {
+          "groupId": "org.junit.vintage",
+          "artifactId": "junit-vintage-engine"
+        }
+      ]
+    }
+  ],
+  "dependencyManagement": [],
+  "build": {
+    "finalName": "",
+    "defaultGoal": "",
+    "sourceDirectory": "",
+    "testSourceDirectory": "",
+    "outputDirectory": "",
+    "testOutputDirectory": "",
+    "plugins": [
+      {
+        "groupId": "org.springframework.boot",
+        "artifactId": "spring-boot-maven-plugin",
+        "version": "",
+        "configuration": {
+          "parameters": []
+        },
+        "executions": []
+      }
+    ],
+    "resources": [],
+    "testResources": []
+  },
+  "profiles": [],
+  "repositories": [],
+  "distributionManagement": {
+    "repository": {
+      "id": "",
+      "name": "",
+      "url": ""
+    },
+    "snapshotRepository": {
+      "id": "",
+      "name": "",
+      "url": ""
+    },
+    "site": {
+      "id": "",
+      "name": "",
+      "url": ""
+    }
+  },
+  "reporting": {
+    "outputDirectory": "",
+    "plugins": []
+  },
+  "analysis": {
+    "dependencyCount": 7,
+    "pluginCount": 1,
+    "hasParent": true,
+    "buildToolVersions": [
+      {
+        "tool": "Spring Boot",
+        "version": "2.3.1.RELEASE"
+      },
+      {
+        "tool": "Java",
+        "version": "11"
+      }
+    ],
+    "warnings": [
+      "Spring Boot version 2.3.1.RELEASE is outdated and no longer actively maintained",
+      "Missing version specifications for most dependencies - relying on parent POM management",
+      "Test dependency includes exclusion of junit-vintage-engine which may affect legacy test compatibility"
+    ],
+    "suggestions": [
+      "Upgrade Spring Boot to latest stable version (3.x or 2.7.x LTS)",
+      "Explicitly define versions for all dependencies for better reproducibility",
+      "Add explicit version for spring-boot-maven-plugin in build section",
+      "Consider adding spring-boot-configuration-processor for better IDE support",
+      "Add Lombok or MapStruct dependencies if needed for entity mapping in multi-tenancy setup",
+      "Consider adding spring-security-starter for multi-tenancy security isolation",
+      "Add logging configuration (logback or log4j2) explicitly",
+      "Document the multi-tenancy strategy in project description"
+    ]
+  }
+}

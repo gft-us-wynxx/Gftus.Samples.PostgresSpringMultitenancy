@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant Caller
+    participant Application
+    participant DataSourceProperties
+    participant DatasourcesMap as Datasources Map
+
+    Caller->>Application: select appropriate datasource for tenant context
+    activate Application
+    Note right of Application: tenantId: current tenant identifier
+
+    Application->>DataSourceProperties: request datasource via getDatasources
+    activate DataSourceProperties
+
+    DataSourceProperties->>DatasourcesMap: retrieve datasources map
+    activate DatasourcesMap
+    DatasourcesMap-->>DataSourceProperties: Map[String, DataSource] (All configured tenant datasources)
+    deactivate DatasourcesMap
+
+    DataSourceProperties-->>Application: return Map containing all tenant datasources Map[String, DataSource] (Tenant datasources map)
+    deactivate DataSourceProperties
+
+    Application-->>Caller: DataSource (Tenant-specific datasource)
+    deactivate Application

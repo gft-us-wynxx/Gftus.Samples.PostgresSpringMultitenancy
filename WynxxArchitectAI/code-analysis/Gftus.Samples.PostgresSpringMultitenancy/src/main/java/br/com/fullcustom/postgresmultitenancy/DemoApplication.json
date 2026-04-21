@@ -1,0 +1,126 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyDemoApplication.java",
+    "className": "DemoApplication",
+    "packageName": "br.com.fullcustom.postgresmultitenancy",
+    "responsibility": "Spring Boot application entry point for PostgreSQL multi-tenancy system",
+    "interactions": [
+      "SpringApplication framework initialization",
+      "Spring Boot auto-configuration",
+      "Application context bootstrap"
+    ],
+    "businessKeywords": [
+      "multi-tenancy",
+      "PostgreSQL",
+      "application startup"
+    ],
+    "technicalCategory": "Application Bootstrap",
+    "dataPatterns": [
+      "Multi-tenant data isolation"
+    ],
+    "componentRelationships": [
+      "Spring Boot Framework",
+      "PostgreSQL Database"
+    ]
+  },
+  "dependencies": {
+    "consumers": [],
+    "providers": [
+      "org.springframework.boot.SpringApplication",
+      "org.springframework.boot.autoconfigure.SpringBootApplication"
+    ]
+  },
+  "infrastructure": {
+    "deploymentType": "Spring Boot Application",
+    "resourceRequirements": [
+      "JVM Runtime",
+      "PostgreSQL Database Connection"
+    ],
+    "scalingNeeds": "Multi-tenant isolation support"
+  },
+  "security": {
+    "dataClassification": "Multi-tenant data",
+    "authenticationNeeds": "Spring Security integration expected",
+    "authorizationPatterns": "Tenant-based access control"
+  },
+  "performance": {
+    "criticalOperations": [
+      "Application startup",
+      "Spring context initialization"
+    ],
+    "dataVolume": "",
+    "concurrencyModel": "Multi-threaded Spring application"
+  },
+  "classDetails": {
+    "name": "DemoApplication",
+    "package": "br.com.fullcustom.postgresmultitenancy",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [],
+    "methods": [
+      {
+        "name": "main",
+        "signature": "public static void main(String[] args)",
+        "visibility": "public",
+        "isStatic": true,
+        "returnType": "void",
+        "parameters": [
+          {
+            "name": "args",
+            "type": "String[]"
+          }
+        ],
+        "body": "SpringApplication.run(DemoApplication.class, args)"
+      }
+    ],
+    "relationships": [],
+    "interfaces": [],
+    "superclass": "java.lang.Object"
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Application Startup",
+        "steps": [
+          "JVM invokes main method",
+          "SpringApplication.run() called with DemoApplication class",
+          "Spring Boot initializes application context",
+          "Auto-configuration beans loaded",
+          "Application ready for requests"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "System Administrator",
+      "Application User"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Application Startup",
+        "preconditions": [
+          "JVM installed",
+          "PostgreSQL database available",
+          "Spring Boot dependencies in classpath"
+        ],
+        "steps": [
+          "Execute application JAR",
+          "JVM loads DemoApplication class",
+          "main method executes",
+          "SpringApplication initializes context",
+          "Application becomes operational"
+        ],
+        "postconditions": [
+          "Application running",
+          "Spring context initialized",
+          "Ready to handle requests"
+        ],
+        "businessRules": [
+          "Multi-tenant isolation enforced",
+          "PostgreSQL connection established"
+        ]
+      }
+    ]
+  }
+}

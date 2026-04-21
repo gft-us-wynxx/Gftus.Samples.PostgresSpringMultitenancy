@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant Client
+    participant AuthorService
+    participant AuthorRepository
+    participant Database
+    participant ListAuthor
+
+    Client->>+AuthorService: findAll()
+    Note right of Client: Client calls AuthorService.findAll
+
+    AuthorService->>+AuthorRepository: findAll()
+    Note right of AuthorService: AuthorService delegates to repository.findAll
+
+    AuthorRepository->>+Database: SELECT * FROM authors
+    Note right of AuthorRepository: Repository queries database
+
+    Database->>+ListAuthor: return result set
+    Note right of Database: List of Author records from database
+
+    ListAuthor-->>-AuthorRepository: result set
+    AuthorRepository-->>-AuthorService: return ListAuthor
+    Note right of AuthorRepository: List of Author objects
+
+    AuthorService-->>-Client: return ListAuthor
+    Note right of AuthorService: List of Author objects returned to client

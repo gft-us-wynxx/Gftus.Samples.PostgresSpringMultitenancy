@@ -1,0 +1,38 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant PostgreSQL
+    
+    Note over Client,PostgreSQL: Update Author REST API Flow
+    
+    Client->>AuthorResource: PUT /authors/{id} with Author body
+    Note right of Client: id: Long (author identifier) author: Author (updated Author object)
+    
+    activate AuthorResource
+    Note over AuthorResource: Client sends PUT /authors/{id} with Author body
+    
+    AuthorResource->>AuthorResource: update(author, id)
+    Note over AuthorResource: AuthorResource.update(obj, id) invoked
+    
+    AuthorResource->>AuthorResource: author.setId(id)
+    Note over AuthorResource: Author ID set from path variable
+    
+    AuthorResource->>AuthorService: update(author)
+    Note over AuthorService: AuthorService.update(obj) called
+    
+    activate AuthorService
+    AuthorService->>PostgreSQL: UPDATE author SET name = ?, email = ? WHERE id = ?
+    Note over PostgreSQL: Author updated in database
+    
+    activate PostgreSQL
+    PostgreSQL-->>AuthorService: return update count
+    deactivate PostgreSQL
+    
+    AuthorService-->>AuthorResource: return void
+    deactivate AuthorService
+    
+    AuthorResource-->>Client: ResponseEntity.noContent().build()
+    Note right of AuthorResource: ResponseEntity with 204 No Content returned
+    
+    deactivate AuthorResource

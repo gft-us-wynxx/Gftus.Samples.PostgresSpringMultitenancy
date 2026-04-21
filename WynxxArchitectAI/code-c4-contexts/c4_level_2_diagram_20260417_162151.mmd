@@ -1,0 +1,47 @@
+C4Container
+    title Container diagram for Spring Boot REST API Application with Multitenant Architecture
+
+    Person(httpclient, "HTTP Client", "External API consumer making HTTP requests")
+
+    System_Boundary(sb1, "Spring Boot REST API Application") {
+        Container(springbootapp, "Spring Boot Application", "Java Spring Boot, Spring Web, Spring Data JPA", "REST API server handling HTTP requests for Author and Post management with multitenancy support")
+        
+        Container(webapp, "Spring Web Application", "Spring Boot, Spring MVC, Java", "Handles HTTP requests, manages multitenancy through header-based tenant identification")
+        
+        Container(dataaccesslayer, "Data Access Layer", "Spring Data JPA, Hibernate", "Provides CRUD operations and query capabilities for domain entities in a multitenant environment")
+        
+        Container(threadtenantstorage, "Thread Tenant Storage", "Java ThreadLocal", "Maintains current tenant context in threadlocal storage for request-scoped tenant identification")
+        
+        Container(tenantroutingdatasource, "TenantRoutingDataSource", "Java Spring Framework", "Routes database connections to tenant-specific data sources based on current tenant context")
+    }
+
+    System_Boundary(sb2, "Infrastructure & Configuration") {
+        Container(datasourceconfiguration, "DataSourceConfiguration", "Spring Configuration", "Configures and manages multitenant data source routing with Flyway database migration support")
+        
+        Container(datasourceproperties, "DataSourceProperties", "Configuration Properties", "Manages multitenant datasource configuration properties and converts tenant-specific database connection parameters")
+        
+        Container(flywaymigration, "Flyway Database Migration", "Flyway", "Manages database schema versioning and migrations for tenant databases")
+        
+        Container(springframework, "Spring Framework", "Spring Framework Libraries", "Provides core framework services including dependency injection, configuration, and data source routing abstractions")
+    }
+
+    System_Boundary(sb3, "Data Storage") {
+        ContainerDb(postgresqldb, "PostgreSQL Database", "PostgreSQL with multitenant schema isolation", "Persistent storage for Author and Post entities with tenant-based data isolation")
+        
+        ContainerDb(postgresqldatabases, "PostgreSQL Databases", "PostgreSQL", "Stores tenant-specific data including Authors and Posts with schema isolation per tenant")
+    }
+
+    Rel(httpclient, springbootapp, "HTTP Request/Response", "HTTP/REST")
+    Rel(springbootapp, webapp, "uses", "Java")
+    Rel(webapp, dataaccesslayer, "uses", "Java Method Calls")
+    Rel(dataaccesslayer, postgresqldb, "Database Access", "JDBC/SQL")
+    Rel(tenantroutingdatasource, threadtenantstorage, "reads", "Java")
+    Rel(tenantroutingdatasource, postgresqldatabases, "routes", "JDBC")
+    Rel(datasourceconfiguration, tenantroutingdatasource, "creates", "Java")
+    Rel(datasourceproperties, postgresqldatabases, "configures", "Configuration")
+    Rel(datasourceconfiguration, flywaymigration, "triggers", "Java")
+    Rel(flywaymigration, postgresqldatabases, "migrates", "SQL")
+    Rel(springbootapp, springframework, "depends on", "Java")
+    Rel(springbootapp, tenantroutingdatasource, "uses", "Java")
+    Rel(dataaccesslayer, threadtenantstorage, "uses", "Java Method Calls")
+

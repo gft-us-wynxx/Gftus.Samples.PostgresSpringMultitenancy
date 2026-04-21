@@ -1,0 +1,53 @@
+sequenceDiagram
+    participant Client
+    participant AuthorService
+    participant AuthorRepository
+    participant Database
+    participant Author
+
+    Client->>AuthorService: updateauthor(author)
+    Note right of Client: Client calls AuthorService.update with Author object
+
+    AuthorService->>AuthorService: findById(author.getId())
+    Note right of AuthorService: AuthorService calls findById to retrieve existing author
+
+    AuthorService->>AuthorRepository: findById(id)
+
+    AuthorRepository->>Database: SELECT * FROM authors WHERE id = ?
+
+    Database-->>Author: return existing Author
+    Note right of Database: Existing Author object from database
+
+    AuthorRepository-->>AuthorService: return Author
+
+    alt Author found
+        AuthorService->>Author: updateData(newAuthor)
+        Note right of AuthorService: Transfer new values from input author to existing author
+
+        Author->>Author: this.name = newAuthor.getName()
+        Note right of Author: Update name field
+
+        Author->>Author: this.email = newAuthor.getEmail()
+        Note right of Author: Update email field
+
+        AuthorService->>AuthorRepository: save(updatedAuthor)
+
+        AuthorRepository->>Database: UPDATE authors SET ... WHERE id = ?
+        Note right of AuthorRepository: Database updated with new values
+
+        Database-->>Author: return updated Author
+        Note right of Database: Updated Author object
+
+        AuthorRepository-->>AuthorService: return Author
+        Note right of AuthorRepository: Updated Author returned to service
+
+        AuthorService-->>Client: return Author
+        Note right of AuthorService: Updated Author returned to client
+
+    else Author not found
+        AuthorService->>AuthorService: throw ObjectNotFoundException
+        Note right of AuthorService: ObjectNotFoundException if author does not exist
+
+        AuthorService-->>Client: ObjectNotFoundException propagates
+        Note right of AuthorService: Exception propagates to caller
+    end

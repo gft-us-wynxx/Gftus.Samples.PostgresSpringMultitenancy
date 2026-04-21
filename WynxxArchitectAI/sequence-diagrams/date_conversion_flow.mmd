@@ -1,0 +1,33 @@
+sequenceDiagram
+    participant Client
+    participant Service
+    participant SimpleDateFormat
+
+    Client->>Service: convertDateString(dateString, defaultValue)
+    Note right of Client: Client calls method with date string and default value
+
+    Service->>SimpleDateFormat: new SimpleDateFormat("yyyyMMdd")
+    Note right of Service: SimpleDateFormat created with yyyyMMdd pattern
+
+    Service->>SimpleDateFormat: setTimeZone(TimeZone.getTimeZone("GMT"))
+    Note right of Service: TimeZone set to GMT
+
+    Service->>SimpleDateFormat: parse(dateString)
+    Note right of Service: Attempts to parse text date string
+
+    alt ParseException caught
+        SimpleDateFormat-->>Service: throw ParseException
+        Note right of SimpleDateFormat: Exception thrown for invalid date format
+
+        Service->>Service: catch ParseException
+        Note right of Service: Exception caught in try-catch block
+
+        Service-->>Client: return defaultValue
+        Note right of Service: Default Date value returned on exception
+    else Success
+        SimpleDateFormat-->>Service: return parsedDate
+        Note right of SimpleDateFormat: Parsed Date object on success
+
+        Service-->>Client: return parsedDate
+        Note right of Service: Converted Date object
+    end

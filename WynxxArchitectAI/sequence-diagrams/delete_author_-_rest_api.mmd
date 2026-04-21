@@ -1,0 +1,30 @@
+sequenceDiagram
+    actor Client
+    participant AuthorResource
+    participant AuthorService
+    participant PostgreSQL
+    
+    Client->>AuthorResource: DELETE /authors/{id}
+    Note right of Client: Client sends DELETE /authors/{id}
+    
+    activate AuthorResource
+    AuthorResource->>AuthorResource: delete(id)
+    Note right of AuthorResource: AuthorResource.delete(id) invoked
+    
+    AuthorResource->>AuthorService: delete(id)
+    Note right of AuthorResource: AuthorService.delete(id) called
+    
+    activate AuthorService
+    AuthorService->>PostgreSQL: DELETE FROM author WHERE id = ?
+    Note right of AuthorService: Author deleted from database
+    
+    activate PostgreSQL
+    PostgreSQL-->>AuthorService: return delete count
+    deactivate PostgreSQL
+    
+    AuthorService-->>AuthorResource: return void
+    deactivate AuthorService
+    
+    AuthorResource-->>Client: ResponseEntity.noContent().build()
+    Note right of AuthorResource: ResponseEntity with 204 No Content returned
+    deactivate AuthorResource

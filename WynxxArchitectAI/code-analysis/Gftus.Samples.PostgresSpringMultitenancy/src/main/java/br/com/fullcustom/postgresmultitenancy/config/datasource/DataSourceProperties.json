@@ -1,0 +1,211 @@
+{
+  "c4Details": {
+    "path": "Work8f91be0788d64dabb023aeb36864fdf6inputGftus.Samples.PostgresSpringMultitenancysrcmainjavabrcomfullcustompostgresmultitenancyconfigdatasourceDataSourceProperties.java",
+    "className": "DataSourceProperties",
+    "packageName": "br.com.fullcustom.postgresmultitenancy.config.datasource",
+    "responsibility": "Manages multi-tenant datasource configuration properties and converts tenant-specific database connection parameters into Spring DataSource instances",
+    "interactions": [
+      "Receives tenant datasource configurations from Spring Boot properties",
+      "Converts configuration maps into DataSource objects",
+      "Provides datasource instances to Spring container for dependency injection"
+    ],
+    "businessKeywords": [
+      "multi-tenancy",
+      "datasource configuration",
+      "tenant isolation",
+      "database connectivity"
+    ],
+    "technicalCategory": "Infrastructure Configuration",
+    "dataPatterns": [
+      "Map-based configuration storage",
+      "Lazy datasource instantiation",
+      "Property-driven configuration"
+    ],
+    "componentRelationships": [
+      "Spring Boot ConfigurationProperties framework",
+      "DataSourceBuilder for datasource creation",
+      "Spring Component stereotype"
+    ],
+    "dependencies": {
+      "consumers": [
+        "Spring ApplicationContext",
+        "Tenant routing components"
+      ],
+      "providers": [
+        "Spring Boot properties files",
+        "External configuration sources"
+      ]
+    },
+    "infrastructure": {
+      "deploymentType": "Spring Boot application",
+      "resourceRequirements": [
+        "Database connection pools",
+        "Memory for datasource instances",
+        "Network connectivity to multiple databases"
+      ],
+      "scalingNeeds": "Horizontal scaling with tenant-specific database instances"
+    },
+    "security": {
+      "dataClassification": "Sensitive - contains database credentials",
+      "authenticationNeeds": "Database user credentials per tenant",
+      "authorizationPatterns": "Tenant-level database access isolation"
+    },
+    "performance": {
+      "criticalOperations": [
+        "Datasource creation and pooling",
+        "Configuration property conversion"
+      ],
+      "dataVolume": "Low - configuration metadata only",
+      "concurrencyModel": "Thread-safe map operations for multi-tenant access"
+    }
+  },
+  "classDetails": {
+    "name": "DataSourceProperties",
+    "package": "br.com.fullcustom.postgresmultitenancy.config.datasource",
+    "type": "class",
+    "visibility": "public",
+    "attributes": [
+      {
+        "name": "datasources",
+        "type": "Map<Object, Object>",
+        "visibility": "private",
+        "initialValue": "new LinkedHashMap()",
+        "description": "Stores tenant-specific datasource configurations"
+      }
+    ],
+    "methods": [
+      {
+        "name": "getDatasources",
+        "returnType": "Map<Object, Object>",
+        "visibility": "public",
+        "parameters": [],
+        "description": "Returns the map of configured datasources"
+      },
+      {
+        "name": "setDatasources",
+        "returnType": "void",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "datasources",
+            "type": "Map<String, Map<String, String>>"
+          }
+        ],
+        "description": "Sets datasources by converting each configuration map"
+      },
+      {
+        "name": "convert",
+        "returnType": "DataSource",
+        "visibility": "public",
+        "parameters": [
+          {
+            "name": "source",
+            "type": "Map<String, String>"
+          }
+        ],
+        "description": "Converts a configuration map into a DataSource instance"
+      }
+    ],
+    "relationships": [
+      "Uses Spring DataSourceBuilder",
+      "Implements Spring ConfigurationProperties pattern"
+    ],
+    "interfaces": [],
+    "superclass": "Object",
+    "annotations": [
+      "Component",
+      "ConfigurationProperties(prefix = \"tenants\")"
+    ]
+  },
+  "sequenceDetails": {
+    "flows": [
+      {
+        "name": "Datasource Configuration Loading",
+        "steps": [
+          "Spring Boot loads properties with prefix 'tenants'",
+          "setDatasources method invoked with tenant configurations",
+          "forEach iterates over each tenant configuration entry",
+          "convert method called for each tenant datasource",
+          "DataSourceBuilder creates DataSource instance",
+          "Datasource stored in datasources map"
+        ]
+      },
+      {
+        "name": "Datasource Retrieval",
+        "steps": [
+          "Application requests datasource via getDatasources",
+          "Returns Map containing all tenant datasources",
+          "Caller selects appropriate datasource for tenant context"
+        ]
+      },
+      {
+        "name": "DataSource Conversion",
+        "steps": [
+          "convert method receives configuration map",
+          "Logs datasource creation message",
+          "Extracts jdbcUrl from configuration",
+          "Extracts driverClassName from configuration",
+          "Extracts username from configuration",
+          "Extracts password from configuration",
+          "DataSourceBuilder builds configured DataSource",
+          "Returns DataSource instance"
+        ]
+      }
+    ]
+  },
+  "useCaseDetails": {
+    "actors": [
+      "Spring Boot Framework",
+      "Application Administrator",
+      "Multi-tenant Application"
+    ],
+    "mainScenarios": [
+      {
+        "name": "Initialize Multi-Tenant Datasources",
+        "preconditions": [
+          "Spring Boot application started",
+          "Configuration properties file contains tenant datasource definitions",
+          "Database servers are accessible"
+        ],
+        "steps": [
+          "Spring loads application properties",
+          "ConfigurationProperties annotation triggers property binding",
+          "setDatasources receives tenant configurations",
+          "Each tenant configuration converted to DataSource",
+          "Datasources registered in Spring context"
+        ],
+        "postconditions": [
+          "All tenant datasources initialized and ready",
+          "Datasources available for dependency injection",
+          "Application can route queries to appropriate tenant database"
+        ],
+        "businessRules": [
+          "Each tenant must have unique datasource configuration",
+          "Database credentials must be securely managed",
+          "Connection pooling must be configured per tenant"
+        ]
+      },
+      {
+        "name": "Retrieve Tenant Datasource",
+        "preconditions": [
+          "Datasources have been initialized",
+          "Tenant context is established"
+        ],
+        "steps": [
+          "Application determines current tenant",
+          "Calls getDatasources to retrieve datasource map",
+          "Selects datasource matching tenant identifier",
+          "Uses datasource for database operations"
+        ],
+        "postconditions": [
+          "Correct tenant datasource selected",
+          "Database operations isolated to tenant"
+        ],
+        "businessRules": [
+          "Tenant isolation must be maintained",
+          "No cross-tenant data access permitted"
+        ]
+      }
+    ]
+  }
+}

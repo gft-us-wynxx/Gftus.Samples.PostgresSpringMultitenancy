@@ -1,0 +1,48 @@
+sequenceDiagram
+    participant SpringBoot as Spring Boot
+    participant CommandLineRunner
+    participant Instantiation
+    participant userRepository
+    participant postRepository
+    participant SimpleDateFormat
+    participant Author
+    participant Post
+    participant Database
+
+    SpringBoot->>CommandLineRunner: invoke run method
+    Note right of CommandLineRunner: Executes after application startup
+
+    CommandLineRunner->>Instantiation: create SimpleDateFormat -GMT timezone
+    Instantiation-->>CommandLineRunner: SimpleDateFormat -(Date formatter with GMT timezone)
+
+    CommandLineRunner->>userRepository: deleteAll
+    Note right of userRepository: Clear existing authors
+    userRepository->>Database: DELETE FROM authors
+    Database-->>userRepository: deletion complete
+
+    CommandLineRunner->>postRepository: deleteAll
+    Note right of postRepository: Clear existing posts
+    postRepository->>Database: DELETE FROM posts
+    Database-->>postRepository: deletion complete
+
+    CommandLineRunner->>Instantiation: create Author objects
+    Instantiation-->>CommandLineRunner: List[Author] -(List of Author entities)
+
+    CommandLineRunner->>userRepository: saveAll(authors)
+    userRepository->>Database: INSERT INTO authors
+    Database-->>userRepository: authors persisted -(Persisted authors with IDs)
+
+    CommandLineRunner->>Instantiation: create Post objects -with parsed dates
+    Instantiation-->>CommandLineRunner: List[Post] -(List of Post entities)
+
+    CommandLineRunner->>postRepository: saveAll(posts)
+    postRepository->>Database: INSERT INTO posts
+    Database-->>postRepository: posts persisted -(Persisted posts with IDs)
+
+    CommandLineRunner->>Author: getPosts.addAll(posts)
+    Note right of CommandLineRunner: Associate posts with author
+
+    CommandLineRunner->>userRepository: save(author with posts)
+    Note right of userRepository: Persist author with post associations
+    userRepository->>Database: UPDATE authors with post associations
+    Database-->>userRepository: update complete
